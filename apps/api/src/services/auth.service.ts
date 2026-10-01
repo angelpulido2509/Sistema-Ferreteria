@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { UsuarioRepository, usuarioRepository as defaultUsuarioRepo } from '../repositories/usuario.repository.js';
 import { RolUsuario, type UsuarioDTO } from '@ferreteria/shared';
+import { getEnv } from '../config/env.js';
 
 export interface LoginResult {
   token: string;
@@ -31,10 +32,12 @@ export class AuthService {
       throw new Error('Credenciales inválidas');
     }
 
-    const secret = process.env.JWT_SECRET || 'clave_secreta_super_segura_para_desarrollo_local_123456';
-    const refreshSecret = process.env.JWT_REFRESH_SECRET || 'clave_refresh_secreta_super_segura_para_desarrollo_local_654321';
-    const expiresIn = process.env.JWT_EXPIRES_IN || '8h';
-    const refreshExpiresIn = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+    const {
+      JWT_SECRET: secret,
+      JWT_REFRESH_SECRET: refreshSecret,
+      JWT_EXPIRES_IN: expiresIn,
+      JWT_REFRESH_EXPIRES_IN: refreshExpiresIn,
+    } = getEnv();
 
     const payload = {
       id: usuario.id,
@@ -63,9 +66,7 @@ export class AuthService {
       throw new Error('Refresh token requerido');
     }
 
-    const refreshSecret = process.env.JWT_REFRESH_SECRET || 'clave_refresh_secreta_super_segura_para_desarrollo_local_654321';
-    const secret = process.env.JWT_SECRET || 'clave_secreta_super_segura_para_desarrollo_local_123456';
-    const expiresIn = process.env.JWT_EXPIRES_IN || '8h';
+    const { JWT_SECRET: secret, JWT_REFRESH_SECRET: refreshSecret, JWT_EXPIRES_IN: expiresIn } = getEnv();
 
     try {
       const decoded = jwt.verify(refreshToken, refreshSecret) as { id: string; email: string; rol: RolUsuario };

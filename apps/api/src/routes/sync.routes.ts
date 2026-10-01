@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import { syncService } from '../services/sync.service.js';
 import type { ApiResponse, SyncStatusDTO } from '@ferreteria/shared';
+import { getEnv } from '../config/env.js';
 
 const router: Router = Router();
 
@@ -11,7 +12,7 @@ const router: Router = Router();
  */
 router.post('/push', async (req: Request, res: Response<ApiResponse<any>>) => {
   const apiKey = req.headers['x-sync-api-key'];
-  const expectedKey = process.env.SYNC_API_KEY || 'ferrepro_local_sync_key_2024';
+  const expectedKey = getEnv().SYNC_API_KEY;
 
   if (!apiKey || apiKey !== expectedKey) {
     res.status(401).json({

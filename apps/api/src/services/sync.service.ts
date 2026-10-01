@@ -1,6 +1,7 @@
 import { prisma, isCloudMode } from '../lib/prisma.js';
 import { EstadoSync, OperacionSync, type SyncStatusDTO, type SyncPushItemDTO } from '@ferreteria/shared';
 import { Prisma } from '@prisma/client-local';
+import { getEnv } from '../config/env.js';
 
 export class SyncService {
   private isSyncing = false;
@@ -69,7 +70,7 @@ export class SyncService {
     }
 
     const cloudUrl = process.env.CLOUD_API_URL;
-    const syncApiKey = process.env.SYNC_API_KEY || 'ferrepro_local_sync_key_2024';
+    const syncApiKey = getEnv().SYNC_API_KEY;
 
     if (!cloudUrl) {
       return { procesados: 0, exitosos: 0, fallidos: 0 };

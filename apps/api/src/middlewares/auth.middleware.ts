@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { RolUsuario, type ApiResponse } from '@ferreteria/shared';
+import { getEnv } from '../config/env.js';
 
 export interface AuthUser {
   id: string;
@@ -33,10 +34,8 @@ export function authenticateToken(
     return;
   }
 
-  const secret = process.env.JWT_SECRET || 'clave_secreta_super_segura_para_desarrollo_local_123456';
-
   try {
-    const decoded = jwt.verify(token, secret) as AuthUser;
+    const decoded = jwt.verify(token, getEnv().JWT_SECRET) as AuthUser;
     req.user = decoded;
     next();
   } catch (_error) {

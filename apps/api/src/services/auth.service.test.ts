@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { AuthService } from './auth.service.js';
 import { RolUsuario } from '@ferreteria/shared';
+import { getEnv } from '../config/env.js';
 import type { UsuarioRepository } from '../repositories/usuario.repository.js';
 import type { Usuario } from '@prisma/client';
 
@@ -76,7 +77,7 @@ describe('AuthService', () => {
     mockUsuarioRepo.findById.mockResolvedValue(mockUser);
     const validRefreshToken = jwt.sign(
       { id: mockUser.id, email: mockUser.email, rol: mockUser.rol },
-      process.env.JWT_REFRESH_SECRET || 'clave_refresh_secreta_super_segura_para_desarrollo_local_654321',
+      getEnv().JWT_REFRESH_SECRET,
       { expiresIn: '7d' }
     );
 

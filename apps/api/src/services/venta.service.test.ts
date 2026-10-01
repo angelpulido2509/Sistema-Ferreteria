@@ -4,6 +4,15 @@ import type { VentaRepository } from '../repositories/venta.repository.js';
 import { EstadoVenta } from '@ferreteria/shared';
 import { Prisma } from '@prisma/client-local';
 
+// Aísla el servicio de la BD real: crearVenta consulta el turno abierto directamente con Prisma.
+vi.mock('../lib/prisma.js', () => ({
+  prisma: {
+    turnoCaja: { findFirst: vi.fn().mockResolvedValue(null) },
+    producto: { findUnique: vi.fn().mockResolvedValue(null) },
+  },
+  isCloudMode: false,
+}));
+
 describe('VentaService', () => {
   let ventaService: VentaService;
   let mockVentaRepo: {

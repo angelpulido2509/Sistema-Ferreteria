@@ -50,7 +50,6 @@ describe('SyncService', () => {
     process.env = {
       ...originalEnv,
       CLOUD_API_URL: 'https://cloud-api.ferrepro.test',
-      SYNC_API_KEY: 'test_sync_key',
     };
     service = new SyncService();
   });
