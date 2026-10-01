@@ -36,6 +36,12 @@ enum MetodoPago {
   PAGO_MOVIL_VES
   TARJETA_VES
   ZELLE_USD
+  NEQUI_COP // billetera digital en pesos; NO es efectivo (no entra al cuadre físico)
+}
+
+enum TipoDocumento {
+  FACTURA // fiscal: IVA sumado, registro fiscal
+  NOTA_ENTREGA // sin IVA, control interno
 }
 
 enum EstadoSync {
@@ -52,6 +58,7 @@ enum OperacionSync {
 
 enum EstadoTurnoCaja {
   ABIERTO
+  CERRANDO // transitorio: el cierre está en curso y bloquea nuevas ventas (F4)
   CERRADO
 }
 
@@ -67,11 +74,13 @@ model Usuario {
   passwordHash          String
   rol                   RolUsuario             @default(CAJERO)
   activo                Boolean                @default(true)
-  ventas                Venta[]
+  ventas                Venta[]                @relation("VentasRealizadas")
   movimientosInventario MovimientoInventario[]
   aperturasCaja         TurnoCaja[]            @relation("AperturasCaja")
   cierresCaja           TurnoCaja[]            @relation("CierresCaja")
   movimientosCaja       MovimientoCaja[]
+  ventasAnuladas        Venta[]                @relation("VentasAnuladas")
+  ventasConDescuento    Venta[]                @relation("DescuentosAplicados")
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
 
@@ -89,16 +98,16 @@ model Categoria {
 }
 
 model Proveedor {
-  id        String                @id @default(uuid())
+  id        String              @id @default(uuid())
   nombre    String
-  rif       String                @unique
+  rif       String              @unique
   telefono  String?
   correo    String?
   direccion String?
-  activo    Boolean               @default(true)
+  activo    Boolean             @default(true)
   productos ProductoProveedor[]
-  createdAt DateTime              @default(now())
-  updatedAt DateTime              @updatedAt
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
 
   @@map("proveedores")
 }
@@ -116,6 +125,7 @@ model Producto {
   stockActual           Int                    @default(0)
   stockMinimo           Int                    @default(5)
   unidadMedida          String                 @default("UND")
+  exentoIva             Boolean                @default(false) // F10: IVA por línea
   activo                Boolean                @default(true)
   proveedores           ProductoProveedor[]
   detallesVenta         DetalleVenta[]
@@ -151,52 +161,81 @@ model Cliente {
 }
 
 model Venta {
-  id              String         @id @default(uuid())
-  clienteId       String
-  cliente         Cliente        @relation(fields: [clienteId], references: [id])
-  usuarioId       String
-  usuario         Usuario        @relation(fields: [usuarioId], references: [id])
-  fecha           DateTime       @default(now())
-  subtotal        Decimal
-  impuesto        Decimal
-  total           Decimal
-  monedaFuncional Moneda         @default(USD)
-  totalUsd        Decimal        @default(0)
-  estado          EstadoVenta    @default(COMPLETADA)
-  detalles        DetalleVenta[]
-  pagos           PagoVenta[]
-  turnoCajaId     String?
-  turnoCaja       TurnoCaja?     @relation(fields: [turnoCajaId], references: [id])
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  id                     String         @id @default(uuid())
+  clienteId              String
+  cliente                Cliente        @relation(fields: [clienteId], references: [id])
+  usuarioId              String
+  usuario                Usuario        @relation("VentasRealizadas", fields: [usuarioId], references: [id])
+  /// F9: correlativo por serie (p. ej. B001-000123), asignado en la transacción de la venta
+  numero                 String?        @unique
+  fecha                  DateTime       @default(now())
+  subtotal               Decimal
+  impuesto               Decimal
+  total                  Decimal
+  /// F1: suma de descuentos de línea en USD y quién los aplicó
+  descuentoTotal         Decimal        @default(0)
+  descuentoAplicadoPorId String?
+  descuentoAplicadoPor   Usuario?       @relation("DescuentosAplicados", fields: [descuentoAplicadoPorId], references: [id])
+  monedaFuncional        Moneda         @default(USD)
+  totalUsd               Decimal        @default(0)
+  tipoDocumento          TipoDocumento  @default(NOTA_ENTREGA)
+  /// Venta creada en modo pruebas (no cuenta en Z, reportes, kárdex real ni sync)
+  esPrueba               Boolean        @default(false)
+  /// Moneda en que se entregó el vuelto (solo pagos en efectivo generan vuelto)
+  vueltoMoneda           Moneda?
+  estado                 EstadoVenta    @default(COMPLETADA)
+  detalles               DetalleVenta[]
+  pagos                  PagoVenta[]
+  turnoCajaId            String?
+  turnoCaja              TurnoCaja?     @relation(fields: [turnoCajaId], references: [id])
+  /// F5: auditoría de anulación
+  motivoAnulacion        String?
+  anuladaPorId           String?
+  anuladaPor             Usuario?       @relation("VentasAnuladas", fields: [anuladaPorId], references: [id])
+  fechaAnulacion         DateTime?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
 
   @@map("ventas")
 }
 
 model DetalleVenta {
-  id             String   @id @default(uuid())
-  ventaId        String
-  venta          Venta    @relation(fields: [ventaId], references: [id])
-  productoId     String
-  producto       Producto @relation(fields: [productoId], references: [id])
-  cantidad       Int
-  precioUnitario Decimal
-  subtotalLinea  Decimal
+  id                  String   @id @default(uuid())
+  ventaId             String
+  venta               Venta    @relation(fields: [ventaId], references: [id])
+  productoId          String
+  producto            Producto @relation(fields: [productoId], references: [id])
+  cantidad            Int
+  /// Precio de lista tomado de Producto.precioVenta (F1)
+  precioUnitario      Decimal
+  descuentoPorcentaje Decimal  @default(0)
+  descuentoMonto      Decimal  @default(0)
+  /// Neto de la línea antes de IVA: cantidad × precio − descuento
+  subtotalLinea       Decimal
+  /// F10: alícuota aplicada a la línea (0 si el producto es exento)
+  porcentajeImpuesto  Decimal  @default(0)
+  impuestoLinea       Decimal  @default(0)
 
   @@map("detalles_venta")
 }
 
 model PagoVenta {
-  id           String     @id @default(uuid())
-  ventaId      String
-  venta        Venta      @relation(fields: [ventaId], references: [id])
-  metodoPago   MetodoPago
-  moneda       Moneda
-  montoMoneda  Decimal
-  tasaAplicada Decimal
-  montoUsd     Decimal
-  referencia   String?
-  createdAt    DateTime   @default(now())
+  id            String     @id @default(uuid())
+  ventaId       String
+  venta         Venta      @relation(fields: [ventaId], references: [id])
+  metodoPago    MetodoPago
+  moneda        Moneda
+  /// F3: lo que entregó el cliente en la moneda del pago
+  montoRecibido Decimal    @default(0)
+  /// F3: vuelto entregado, en la misma moneda del pago
+  vuelto        Decimal    @default(0)
+  /// Neto aplicado a la venta: montoRecibido − vuelto
+  montoMoneda   Decimal
+  /// Tasa de Configuracion vigente al cobrar (F1), congelada
+  tasaAplicada  Decimal
+  montoUsd      Decimal
+  referencia    String?
+  createdAt     DateTime   @default(now())
 
   @@map("pagos_venta")
 }
@@ -211,18 +250,35 @@ model TasaCambio {
 }
 
 model Configuracion {
-  id                 String   @id @default(uuid())
-  nombreFerreteria   String   @default("Mi Ferretería")
-  rif                String   @default("J-00000000-0")
-  direccion          String   @default("Guasdualito, Apure, Venezuela")
-  telefono           String   @default("0414-0000000")
-  ivaPorcentaje      Decimal  @default(16.0)
-  stockMinimoAlerta  Int      @default(5)
-  monedaFuncional    Moneda   @default(USD)
-  tasaVes            Decimal  @default(60.0000)
-  tasaCop            Decimal  @default(4100.0000)
-  metodosHabilitados Json     @default("[\"EFECTIVO_USD\",\"EFECTIVO_COP\",\"PAGO_MOVIL_VES\",\"TARJETA_VES\",\"ZELLE_USD\"]")
-  updatedAt          DateTime @default(now()) @updatedAt
+  id                      String    @id @default(uuid())
+  nombreFerreteria        String    @default("Mi Ferretería")
+  rif                     String    @default("J-00000000-0")
+  direccion               String    @default("Guasdualito, Apure, Venezuela")
+  telefono                String    @default("0414-0000000")
+  ivaPorcentaje           Decimal   @default(16.0)
+  stockMinimoAlerta       Int       @default(5)
+  monedaFuncional         Moneda    @default(USD)
+  tasaVes                 Decimal   @default(60.0000)
+  tasaCop                 Decimal   @default(4100.0000)
+  /// F1: última confirmación de tasas VES/COP (null = nunca confirmada)
+  tasaActualizadaEn       DateTime?
+  /// F1: horas de vigencia de la tasa antes de bloquear cobros en VES/COP
+  tasaVigenciaHoras       Int       @default(12)
+  /// F1: tope de descuento por línea para CAJERO (ADMIN sin tope)
+  descuentoMaxCajeroPct   Decimal   @default(10)
+  /// Módulo de documento dual (FACTURA / NOTA_ENTREGA): solo si el cliente lo pide
+  facturacionFiscalActiva Boolean   @default(false)
+  modoPruebas             Boolean   @default(false)
+  /// Ruta del archivo del logo (NO base64 en BD)
+  logoPath                String?
+  /// F9: series de correlativo por tipo de documento
+  serieFactura            String    @default("F001")
+  serieNotaEntrega        String    @default("N001")
+  /// IGTF: pendiente de confirmar con el contador
+  igtfActivo              Boolean   @default(false)
+  igtfPorcentaje          Decimal   @default(3)
+  metodosHabilitados      Json      @default("[\"EFECTIVO_USD\",\"EFECTIVO_COP\",\"PAGO_MOVIL_VES\",\"TARJETA_VES\",\"ZELLE_USD\"]")
+  updatedAt               DateTime  @default(now()) @updatedAt
 
   @@map("configuracion")
 }
@@ -257,33 +313,38 @@ model SyncQueue {
 }
 
 model TurnoCaja {
-  id                  String             @id @default(uuid())
-  cajaNumero          String             @default("Caja 1")
-  usuarioAperturaId   String
-  usuarioApertura     Usuario            @relation("AperturasCaja", fields: [usuarioAperturaId], references: [id])
-  usuarioCierreId     String?
-  usuarioCierre       Usuario?           @relation("CierresCaja", fields: [usuarioCierreId], references: [id])
-  estado              EstadoTurnoCaja    @default(ABIERTO)
-  fechaApertura       DateTime           @default(now())
-  fechaCierre         DateTime?
+  id                String          @id @default(uuid())
+  cajaNumero        String          @default("Caja 1")
+  usuarioAperturaId String
+  usuarioApertura   Usuario         @relation("AperturasCaja", fields: [usuarioAperturaId], references: [id])
+  usuarioCierreId   String?
+  usuarioCierre     Usuario?        @relation("CierresCaja", fields: [usuarioCierreId], references: [id])
+  estado            EstadoTurnoCaja @default(ABIERTO)
+  fechaApertura     DateTime        @default(now())
+  fechaCierre       DateTime?
 
   // Fondo inicial (base de cambio)
-  montoInicialUsd     Decimal            @default(0.0)
-  montoInicialCop     Decimal            @default(0.0)
-  montoInicialVes     Decimal            @default(0.0)
+  montoInicialUsd Decimal @default(0.0)
+  montoInicialCop Decimal @default(0.0)
+  montoInicialVes Decimal @default(0.0)
 
   // Conteo físico al cierre (conteo ciego)
-  conteoFisicoUsd     Decimal?
-  conteoFisicoCop     Decimal?
-  conteoFisicoVes     Decimal?
+  conteoFisicoUsd Decimal?
+  conteoFisicoCop Decimal?
+  conteoFisicoVes Decimal?
 
   // Totales del sistema calculados al cierre
-  ventasTotalesUsd    Decimal?
-  ventasEfectivoUsd   Decimal?
-  ventasEfectivoCop   Decimal?
-  ventasPagoMovilVes  Decimal?
-  ventasTarjetaVes    Decimal?
-  ventasZelleUsd      Decimal?
+  ventasTotalesUsd   Decimal?
+  ventasEfectivoUsd  Decimal?
+  ventasEfectivoCop  Decimal?
+  ventasPagoMovilVes Decimal?
+  ventasTarjetaVes   Decimal?
+  ventasZelleUsd     Decimal?
+
+  // Vuelto entregado por moneda (F3)
+  vueltoUsd Decimal?
+  vueltoCop Decimal?
+  vueltoVes Decimal?
 
   // Movimientos manuales
   ingresosManualesUsd Decimal?
@@ -294,16 +355,16 @@ model TurnoCaja {
   egresosManualesVes  Decimal?
 
   // Diferencias calculadas (sobrante +, faltante -)
-  diferenciaUsd       Decimal?
-  diferenciaCop       Decimal?
-  diferenciaVes       Decimal?
+  diferenciaUsd Decimal?
+  diferenciaCop Decimal?
+  diferenciaVes Decimal?
 
-  observaciones       String?
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @default(now()) @updatedAt
+  observaciones String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 
-  movimientos         MovimientoCaja[]
-  ventas              Venta[]
+  movimientos MovimientoCaja[]
+  ventas      Venta[]
 
   @@map("turnos_caja")
 }
@@ -318,7 +379,31 @@ model MovimientoCaja {
   monto       Decimal
   moneda      Moneda             @default(USD)
   motivo      String
+  /// F5: venta anulada que originó este ajuste (si aplica)
+  ventaId     String?
   fecha       DateTime           @default(now())
 
   @@map("movimientos_caja")
+}
+
+/// F9: correlativo de comprobantes por serie
+model SecuenciaDocumento {
+  serie        String   @id
+  ultimoNumero Int      @default(0)
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  @@map("secuencias_documento")
+}
+
+model AuditoriaEvento {
+  id        String   @id @default(uuid())
+  entidad   String
+  entidadId String?
+  accion    String // ANULAR | PURGAR_PRUEBAS | CAMBIO_CONFIG ...
+  usuarioId String
+  motivo    String
+  detalle   String? // JSON con conteos/valores previos
+  fecha     DateTime @default(now())
+
+  @@map("auditoria_eventos")
 }
