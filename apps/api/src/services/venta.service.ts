@@ -10,7 +10,15 @@ import {
 } from '../repositories/configuracion.repository.js';
 import { configuracionService } from './configuracion.service.js';
 import { prisma } from '../lib/prisma.js';
-import { VentaDTO, EstadoVenta, Moneda, MetodoPago, RolUsuario, TipoDocumento } from '@ferreteria/shared';
+import {
+  VentaDTO,
+  EstadoVenta,
+  Moneda,
+  MetodoPago,
+  RolUsuario,
+  TipoDocumento,
+  MONEDA_POR_METODO,
+} from '@ferreteria/shared';
 import {
   ESCALA_TASA,
   TOLERANCIA_PAGO_CENTAVOS_USD,
@@ -71,6 +79,13 @@ interface ConfigVenta {
   tasaActualizadaEn: Date | null;
   tasaVigenciaHoras: number;
   descuentoMaxCajeroPct: Prisma.Decimal | number | string;
+  metodosHabilitados: unknown;
+}
+
+/** metodosHabilitados se guarda como JSON (array o texto según el proveedor). */
+function metodosHabilitados(config: ConfigVenta): string[] {
+  const valor = typeof config.metodosHabilitados === 'string' ? JSON.parse(config.metodosHabilitados) : config.metodosHabilitados;
+  return Array.isArray(valor) ? (valor as string[]) : [];
 }
 
 const num = (v: Prisma.Decimal | number | string | null | undefined): number => (v === null || v === undefined ? 0 : Number(v));
@@ -270,11 +285,26 @@ export class VentaService {
       impuestoLinea: minimoADecimal(l.ivaCentavos, 'USD'),
     }));
 
-    // Pagos: tasa de Configuracion vigente (la del request se ignora)
+    // F2: pagos obligatorios, con método habilitado y moneda coherente con el método.
+    // La tasa es la de Configuracion vigente (la del request se ignora).
+    if (!input.pagos || input.pagos.length === 0) {
+      throw new Error('La venta debe incluir al menos un pago');
+    }
+    const habilitados = metodosHabilitados(config);
     const pagos: PagoVentaData[] = [];
-    if (input.pagos && input.pagos.length > 0) {
+    {
       const montosUsd: number[] = [];
       for (const pago of input.pagos) {
+        if (!habilitados.includes(pago.metodoPago)) {
+          throw new Error(`El método de pago ${pago.metodoPago} no está habilitado en Configuración`);
+        }
+        const monedaMetodo = MONEDA_POR_METODO[pago.metodoPago];
+        if (!monedaMetodo) {
+          throw new Error(`Método de pago desconocido: ${pago.metodoPago}`);
+        }
+        if (pago.moneda !== monedaMetodo) {
+          throw new Error(`El método ${pago.metodoPago} se cobra en ${monedaMetodo}, no en ${pago.moneda}`);
+        }
         const moneda = pago.moneda as CodigoMoneda;
         const recibido = aMinimo(pago.montoRecibido ?? pago.montoMoneda ?? 0, moneda);
         if (recibido <= 0) {
