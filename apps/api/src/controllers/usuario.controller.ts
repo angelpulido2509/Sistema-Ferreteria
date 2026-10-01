@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { usuarioService } from '../services/usuario.service.js';
+import { PasswordPolicyError } from '../services/passwordPolicy.js';
 import { RolUsuario } from '@ferreteria/shared';
 import type { ApiResponse, UsuarioDTO } from '@ferreteria/shared';
 
@@ -56,7 +57,8 @@ export class UsuarioController {
 
       res.status(201).json({ success: true, data: usuario as UsuarioDTO, error: null });
     } catch (error) {
-      const statusCode = error instanceof Error && error.message.includes('existe') ? 409 : 500;
+      const statusCode =
+        error instanceof PasswordPolicyError ? 400 : error instanceof Error && error.message.includes('existe') ? 409 : 500;
       res.status(statusCode).json({
         success: false,
         data: null,
@@ -101,7 +103,9 @@ export class UsuarioController {
       res.status(200).json({ success: true, data: usuario as UsuarioDTO, error: null });
     } catch (error) {
       const statusCode =
-        error instanceof Error && error.message.includes('no encontrado') ? 404 : 500;
+        error instanceof PasswordPolicyError
+          ? 400
+          : error instanceof Error && error.message.includes('no encontrado') ? 404 : 500;
       res.status(statusCode).json({
         success: false,
         data: null,

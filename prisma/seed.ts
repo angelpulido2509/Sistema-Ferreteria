@@ -32,11 +32,39 @@ async function main() {
     console.log('✔ Configuración inicial registrada.');
   }
 
-  // 2. Usuarios base (Admin y Cajero)
+  // 2. Usuarios de demostración: SOLO en desarrollo explícito.
+  //    En cualquier otro entorno el primer ADMIN se crea con el asistente
+  //    de primer arranque (POST /api/auth/setup) con contraseña propia.
+  if (process.env.NODE_ENV === 'development') {
+    await crearUsuariosDemo();
+  } else {
+    console.log('ℹ Seed sin usuarios (NODE_ENV != development): crea el ADMIN desde el asistente de primer arranque.');
+  }
+
+  // 3. Cliente Mostrador genérico
+  await prisma.cliente.upsert({
+    where: { identificacion: 'V-00000000' },
+    update: {},
+    create: {
+      nombre: 'Cliente Mostrador / Venta Rápida',
+      identificacion: 'V-00000000',
+      telefono: '0000-0000000',
+      correo: 'mostrador@ferreteria.com',
+      direccion: 'Guasdualito',
+    },
+  });
+  console.log('✔ Cliente mostrador verificado.');
+
+  await crearCatalogoBase();
+  console.log('🎉 Seed completado exitosamente.');
+}
+
+/** Usuarios con contraseñas conocidas: nunca usar fuera de desarrollo local. */
+async function crearUsuariosDemo() {
   const passwordHashAdmin = await bcrypt.hash('admin123', 10);
   const passwordHashCajero = await bcrypt.hash('cajero123', 10);
 
-  const admin = await prisma.usuario.upsert({
+  await prisma.usuario.upsert({
     where: { email: 'admin@ferreteria.com' },
     update: {},
     create: {
@@ -59,22 +87,10 @@ async function main() {
       activo: true,
     },
   });
-  console.log('✔ Usuarios base verificados (admin@ferreteria.com / cajero@ferreteria.com).');
+  console.log('✔ Usuarios DEMO verificados (solo desarrollo).');
+}
 
-  // 3. Cliente Mostrador genérico
-  const clienteGenerico = await prisma.cliente.upsert({
-    where: { identificacion: 'V-00000000' },
-    update: {},
-    create: {
-      nombre: 'Cliente Mostrador / Venta Rápida',
-      identificacion: 'V-00000000',
-      telefono: '0000-0000000',
-      correo: 'mostrador@ferreteria.com',
-      direccion: 'Guasdualito',
-    },
-  });
-  console.log('✔ Cliente mostrador verificado.');
-
+async function crearCatalogoBase() {
   // 4. Categorías base
   const categoriasData = [
     'Herramientas Manuales',
@@ -194,7 +210,6 @@ async function main() {
     });
   }
   console.log('✔ Productos base de demostración verificados.');
-  console.log('🎉 Seed completado exitosamente.');
 }
 
 main()

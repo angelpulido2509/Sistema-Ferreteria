@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
 import { usuarioRepository, UsuarioRepository } from '../repositories/usuario.repository.js';
 import { RolUsuario, type UsuarioDTO } from '@ferreteria/shared';
+import { validarPassword } from './passwordPolicy.js';
 
-const BCRYPT_ROUNDS = 10;
+export const BCRYPT_ROUNDS = 10;
 
 type SafeUser = UsuarioDTO;
 
@@ -25,6 +26,7 @@ export class UsuarioService {
       throw new Error(`Ya existe un usuario con el correo "${data.email}"`);
     }
 
+    validarPassword(data.password, data.rol ?? RolUsuario.CAJERO, data.email);
     const passwordHash = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
 
     return this.repo.create({
@@ -62,6 +64,7 @@ export class UsuarioService {
     // Si se cambia la contraseña, hashearla
     let passwordHash: string | undefined;
     if (data.password) {
+      validarPassword(data.password, data.rol ?? (usuario.rol as RolUsuario), data.email ?? usuario.email);
       passwordHash = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
     }
 

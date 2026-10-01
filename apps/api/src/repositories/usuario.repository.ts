@@ -24,6 +24,11 @@ export class UsuarioRepository {
     });
   }
 
+  /** Cuenta administradores (activos o no): mientras exista uno, el asistente de primer arranque queda cerrado. */
+  public async countAdmins(): Promise<number> {
+    return prisma.usuario.count({ where: { rol: RolUsuario.ADMIN } });
+  }
+
   public async findByEmail(email: string) {
     return prisma.usuario.findUnique({
       where: { email },

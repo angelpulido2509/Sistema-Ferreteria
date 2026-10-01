@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, getStoredUser, clearStoredAuth, setStoredAuth } from './lib/api.js';
 import { LoginModal } from './components/LoginModal.js';
+import { SetupModal } from './components/SetupModal.js';
+import { useSetupStatus } from './hooks/useSetupStatus.js';
 import { DashboardView } from './components/DashboardView.js';
 import { PosView } from './components/PosView.js';
 import { ProductosView } from './components/ProductosView.js';
@@ -34,6 +36,7 @@ export type TabType =
 export default function App(): React.JSX.Element {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<UsuarioDTO | null>(getStoredUser());
+  const { data: setupStatus } = useSetupStatus(!user);
 
   // Estado de sincronización offline global
   const { isOnline, isSyncing, pendingCount, sincronizarAhora } = useSyncStatus();
@@ -217,7 +220,7 @@ export default function App(): React.JSX.Element {
   return (
     <div className="bg-background font-body-md text-on-surface antialiased min-h-screen">
       {/* Modal de Login si no hay usuario autenticado */}
-      {!user && <LoginModal onSuccess={u => setUser(u)} />}
+      {!user && (setupStatus?.needsSetup ? <SetupModal /> : <LoginModal onSuccess={u => setUser(u)} />)}
 
       {/* Mobile Backdrop */}
       {mobileMenuOpen && (

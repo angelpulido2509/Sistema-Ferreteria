@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import { UsuarioRepository, usuarioRepository as defaultUsuarioRepo } from '../repositories/usuario.repository.js';
 import { RolUsuario, type UsuarioDTO } from '@ferreteria/shared';
 import { getEnv } from '../config/env.js';
+import { validarPassword } from './passwordPolicy.js';
+import { BCRYPT_ROUNDS } from './usuario.service.js';
 
 export interface LoginResult {
   token: string;
@@ -10,8 +12,61 @@ export interface LoginResult {
   usuario: UsuarioDTO;
 }
 
+export interface SetupInicialInput {
+  nombre: string;
+  email: string;
+  password: string;
+}
+
+/** El asistente de primer arranque ya no está disponible (existe un ADMIN). Se responde con 403. */
+export class SetupNoDisponibleError extends Error {
+  constructor() {
+    super('La configuración inicial ya fue realizada');
+    this.name = 'SetupNoDisponibleError';
+  }
+}
+
 export class AuthService {
+  /** Serializa las llamadas a setupInicial dentro del proceso para que no se creen dos ADMIN. */
+  private setupLock: Promise<unknown> = Promise.resolve();
+
   constructor(private usuarioRepo: UsuarioRepository = defaultUsuarioRepo) {}
+
+  public async getSetupStatus(): Promise<{ needsSetup: boolean }> {
+    const admins = await this.usuarioRepo.countAdmins();
+    return { needsSetup: admins === 0 };
+  }
+
+  /**
+   * Crea el primer ADMIN con contraseña propia. Solo funciona mientras no exista
+   * ningún usuario ADMIN; después lanza SetupNoDisponibleError para siempre.
+   */
+  public async setupInicial(input: SetupInicialInput): Promise<UsuarioDTO> {
+    const run = async (): Promise<UsuarioDTO> => {
+      if ((await this.usuarioRepo.countAdmins()) > 0) {
+        throw new SetupNoDisponibleError();
+      }
+
+      const nombre = input.nombre?.trim();
+      const email = input.email?.toLowerCase().trim();
+      if (!nombre || !email) {
+        throw new Error('Nombre y correo son obligatorios');
+      }
+      validarPassword(input.password, RolUsuario.ADMIN, email);
+
+      if (await this.usuarioRepo.findByEmail(email)) {
+        throw new Error(`Ya existe un usuario con el correo "${email}"`);
+      }
+
+      const passwordHash = await bcrypt.hash(input.password, BCRYPT_ROUNDS);
+      const creado = await this.usuarioRepo.create({ nombre, email, passwordHash, rol: RolUsuario.ADMIN });
+      return { ...creado, rol: creado.rol as RolUsuario };
+    };
+
+    const resultado = this.setupLock.then(run, run);
+    this.setupLock = resultado.catch(() => undefined);
+    return resultado;
+  }
 
   public async login(email: string, password: string): Promise<LoginResult> {
     if (!email || !password) {

@@ -7,8 +7,8 @@ interface LoginModalProps {
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({ onSuccess }) => {
-  const [email, setEmail] = useState('admin@ferreteria.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,7 +56,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onSuccess }) => {
           </p>
         </div>
 
-        {/* Cuentas de Demostración Rápidas */}
+        {/* Cuentas de demostración: solo en desarrollo (Vite elimina este bloque en el build de producción) */}
+        {import.meta.env.DEV && (
         <div className="mb-6">
           <label className="block text-xs font-bold uppercase tracking-wider text-secondary mb-2">
             Acceso Rápido por Rol
@@ -88,6 +89,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onSuccess }) => {
             </button>
           </div>
         </div>
+        )}
 
         {error && (
           <div className="mb-4 p-3 rounded-xl bg-error-container text-error text-xs flex items-center gap-2 font-semibold">

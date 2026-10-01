@@ -106,6 +106,18 @@ export const api = {
     });
   },
 
+  // Asistente de primer arranque (crear el primer ADMIN)
+  async getSetupStatus(): Promise<{ needsSetup: boolean }> {
+    return await apiRequest<{ needsSetup: boolean }>('/auth/setup-status');
+  },
+
+  async setupInicial(data: { nombre: string; email: string; password: string }): Promise<UsuarioDTO> {
+    return await apiRequest<UsuarioDTO>('/auth/setup', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
   async getMe(): Promise<UsuarioDTO> {
     try {
       return await apiRequest<UsuarioDTO>('/auth/me');
