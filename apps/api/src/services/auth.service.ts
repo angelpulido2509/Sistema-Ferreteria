@@ -100,8 +100,8 @@ export class AuthService {
       rol: usuario.rol as RolUsuario,
     };
 
-    const token = jwt.sign(payload, secret, { expiresIn: expiresIn as any });
-    const refreshToken = jwt.sign(payload, refreshSecret, { expiresIn: refreshExpiresIn as any });
+    const token = jwt.sign(payload, secret, { expiresIn });
+    const refreshToken = jwt.sign(payload, refreshSecret, { expiresIn: refreshExpiresIn });
 
     const usuarioDTO: UsuarioDTO = {
       id: usuario.id,
@@ -134,7 +134,7 @@ export class AuthService {
       const newToken = jwt.sign(
         { id: usuario.id, email: usuario.email, rol: usuario.rol as RolUsuario },
         secret,
-        { expiresIn: expiresIn as any }
+        { expiresIn }
       );
 
       return { token: newToken };

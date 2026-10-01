@@ -68,6 +68,14 @@ describe('loadEnv (S3)', () => {
     expect(problemas({ ...baseValida(), JWT_SECRET: s, JWT_REFRESH_SECRET: s }).join()).toMatch(/deben ser distintos/);
   });
 
+  it('el access token dura 30 min por defecto y nunca más (S7)', () => {
+    expect(loadEnv(baseValida()).JWT_EXPIRES_IN).toBe(1800);
+    expect(loadEnv({ ...baseValida(), JWT_EXPIRES_IN: '15m' }).JWT_EXPIRES_IN).toBe(900);
+    expect(loadEnv({ ...baseValida(), JWT_EXPIRES_IN: '8h' }).JWT_EXPIRES_IN).toBe(1800);
+    expect(loadEnv(baseValida()).JWT_REFRESH_EXPIRES_IN).toBe(7 * 86400);
+    expect(problemas({ ...baseValida(), JWT_EXPIRES_IN: 'ocho horas' }).join()).toMatch(/formato inválido/);
+  });
+
   it('nunca incluye el valor del secreto en el mensaje de error', () => {
     const debil = 'clave_secreta_super_segura_para_desarrollo_local_123456';
     try {

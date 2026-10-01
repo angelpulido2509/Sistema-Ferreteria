@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { usuarioRepository, UsuarioRepository } from '../repositories/usuario.repository.js';
 import { RolUsuario, type UsuarioDTO } from '@ferreteria/shared';
 import { validarPassword } from './passwordPolicy.js';
+import { invalidarUsuarioEnCache } from '../lib/authUserCache.js';
 
 export const BCRYPT_ROUNDS = 10;
 
@@ -68,13 +69,16 @@ export class UsuarioService {
       passwordHash = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
     }
 
-    return this.repo.update(id, {
+    const actualizado = await this.repo.update(id, {
       ...(data.nombre ? { nombre: data.nombre.trim() } : {}),
       ...(data.email ? { email: data.email.toLowerCase().trim() } : {}),
       ...(data.rol !== undefined ? { rol: data.rol } : {}),
       ...(data.activo !== undefined ? { activo: data.activo } : {}),
       ...(passwordHash ? { passwordHash } : {}),
-    }) as unknown as SafeUser;
+    });
+    // Rol o estado pueden haber cambiado: la sesión activa debe reflejarlo ya.
+    invalidarUsuarioEnCache(id);
+    return actualizado as unknown as SafeUser;
   }
 
   public async deactivate(id: string): Promise<void> {
@@ -83,6 +87,7 @@ export class UsuarioService {
       throw new Error(`Usuario #${id} no encontrado`);
     }
     await this.repo.delete(id);
+    invalidarUsuarioEnCache(id);
   }
 }
 

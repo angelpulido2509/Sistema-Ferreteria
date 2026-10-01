@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { RolUsuario, type ApiResponse } from '@ferreteria/shared';
 import { getEnv } from '../config/env.js';
+import { obtenerUsuarioVigente } from '../lib/authUserCache.js';
 
 export interface AuthUser {
   id: string;
@@ -17,11 +18,16 @@ declare global {
   }
 }
 
-export function authenticateToken(
+/**
+ * Verifica la firma del JWT y, además, que el usuario siga existiendo y activo en la BD.
+ * El rol se toma de la BD (no del token), de modo que desactivar a un usuario o cambiar
+ * su rol tiene efecto en la siguiente petición (caché de 30 s invalidada al editar).
+ */
+export async function authenticateToken(
   req: Request,
   res: Response<ApiResponse>,
   next: NextFunction
-): void {
+): Promise<void> {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
@@ -34,16 +40,32 @@ export function authenticateToken(
     return;
   }
 
+  let decoded: AuthUser;
   try {
-    const decoded = jwt.verify(token, getEnv().JWT_SECRET) as AuthUser;
-    req.user = decoded;
-    next();
+    decoded = jwt.verify(token, getEnv().JWT_SECRET) as AuthUser;
   } catch (_error) {
     res.status(401).json({
       success: false,
       data: null,
       error: 'Token de autenticación inválido o expirado',
     });
+    return;
+  }
+
+  try {
+    const usuario = await obtenerUsuarioVigente(decoded.id);
+    if (!usuario || !usuario.activo) {
+      res.status(401).json({
+        success: false,
+        data: null,
+        error: 'Sesión no válida: usuario inactivo o inexistente',
+      });
+      return;
+    }
+    req.user = { id: usuario.id, email: usuario.email, rol: usuario.rol };
+    next();
+  } catch (error) {
+    next(error);
   }
 }
 

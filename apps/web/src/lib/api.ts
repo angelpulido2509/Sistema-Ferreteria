@@ -45,15 +45,8 @@ export function getStoredUser(): UsuarioDTO | null {
   const raw = localStorage.getItem(USER_KEY);
   if (!raw) return null;
   try {
-    const u = JSON.parse(raw);
-    // Si el usuario guardado tiene el rol obsoleto o es 'Encargado de Almacén', migrar a ADMIN
-    if (u.rol === 'INVENTARIO' || u.nombre === 'Encargado de Almacén' || u.email?.includes('inventario')) {
-      u.rol = RolUsuario.ADMIN;
-      u.nombre = 'Administrador';
-      u.email = 'admin@ferreteria.com';
-      localStorage.setItem(USER_KEY, JSON.stringify(u));
-    }
-    return u;
+    // Solo para pintar la UI; los permisos reales los decide la API con el rol de la BD.
+    return JSON.parse(raw) as UsuarioDTO;
   } catch {
     return null;
   }
@@ -64,7 +57,41 @@ export function clearStoredAuth(): void {
   localStorage.removeItem(USER_KEY);
 }
 
-async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+// Endpoints de auth que no deben disparar la renovación automática del token.
+const SIN_RENOVACION = ['/auth/login', '/auth/refresh', '/auth/logout', '/auth/setup'];
+
+let renovacionEnCurso: Promise<boolean> | null = null;
+
+/**
+ * Pide un access token nuevo usando el refresh token de la cookie httpOnly.
+ * Las llamadas concurrentes comparten la misma renovación.
+ */
+function renovarToken(): Promise<boolean> {
+  if (!renovacionEnCurso) {
+    renovacionEnCurso = (async () => {
+      try {
+        const response = await fetch(`${API_BASE}/auth/refresh`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{}',
+        });
+        if (!response.ok) return false;
+        const data: ApiResponse<{ token: string }> = await response.json();
+        if (!data.success || !data.data?.token) return false;
+        localStorage.setItem(TOKEN_KEY, data.data.token);
+        return true;
+      } catch {
+        return false;
+      } finally {
+        renovacionEnCurso = null;
+      }
+    })();
+  }
+  return renovacionEnCurso;
+}
+
+async function apiRequest<T>(endpoint: string, options: RequestInit = {}, reintento = true): Promise<T> {
   const token = getStoredToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -74,8 +101,16 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
 
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
+    credentials: 'same-origin',
     headers,
   });
+
+  // Access token vencido (o revocado): intentar una renovación silenciosa y repetir una vez.
+  if (response.status === 401 && reintento && !SIN_RENOVACION.includes(endpoint)) {
+    if (await renovarToken()) {
+      return apiRequest<T>(endpoint, options, false);
+    }
+  }
 
   const data: ApiResponse<T> = await response.json().catch(() => ({
     success: false,
@@ -83,7 +118,7 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     error: `Error HTTP ${response.status}`,
   }));
 
-  if (response.status === 401) {
+  if (response.status === 401 && !SIN_RENOVACION.includes(endpoint)) {
     clearStoredAuth();
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('auth:unauthorized'));
@@ -116,6 +151,15 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  },
+
+  /** Cierra la sesión en el servidor (borra la cookie del refresh token) y localmente. */
+  async logout(): Promise<void> {
+    try {
+      await apiRequest<null>('/auth/logout', { method: 'POST' });
+    } finally {
+      clearStoredAuth();
+    }
   },
 
   async getMe(): Promise<UsuarioDTO> {

@@ -210,7 +210,8 @@ export default function App(): React.JSX.Element {
   });
 
   const handleLogout = () => {
-    clearStoredAuth();
+    // Borra la cookie del refresh token en el servidor; la sesión local se limpia siempre.
+    api.logout().catch(() => clearStoredAuth());
     setUser(null);
   };
 

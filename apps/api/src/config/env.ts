@@ -37,6 +37,39 @@ function secretSchema(nombre: string) {
     );
 }
 
+/** Máximo de vida del access token: la revocación efectiva depende de que sea corto. */
+export const ACCESS_TOKEN_MAX_SECONDS = 30 * 60;
+const REFRESH_TOKEN_MAX_SECONDS = 30 * 24 * 60 * 60;
+
+const UNIDADES: Record<string, number> = { s: 1, m: 60, h: 3600, d: 86400 };
+
+/** Convierte '15m', '8h', '7d' o '900' a segundos. Devuelve null si el formato es inválido. */
+export function parseDuracionSegundos(valor: string): number | null {
+  const match = /^(\d+)\s*([smhd]?)$/.exec(valor.trim());
+  if (!match) return null;
+  const segundos = Number(match[1]) * (UNIDADES[match[2] || 's'] ?? 1);
+  return segundos > 0 ? segundos : null;
+}
+
+/** Duración en segundos con tope; si el valor configurado excede el tope se usa el tope (con aviso). */
+function duracionSchema(nombre: string, porDefecto: string, maxSegundos: number) {
+  return z
+    .string()
+    .default(porDefecto)
+    .transform((valor, ctx) => {
+      const segundos = parseDuracionSegundos(valor);
+      if (segundos === null) {
+        ctx.addIssue({ code: 'custom', message: `${nombre} tiene un formato inválido (usa p. ej. 30m, 8h, 7d)` });
+        return z.NEVER;
+      }
+      if (segundos > maxSegundos) {
+        console.warn(`⚠ ${nombre} excede el máximo permitido; se usará ${maxSegundos / 60} min.`);
+        return maxSegundos;
+      }
+      return segundos;
+    });
+}
+
 const envSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('production'),
@@ -46,8 +79,12 @@ const envSchema = z
     JWT_SECRET: secretSchema('JWT_SECRET'),
     JWT_REFRESH_SECRET: secretSchema('JWT_REFRESH_SECRET'),
     SYNC_API_KEY: secretSchema('SYNC_API_KEY'),
-    JWT_EXPIRES_IN: z.string().default('8h'),
-    JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+    /** Segundos de vida del access token (máx. 30 min). */
+    JWT_EXPIRES_IN: duracionSchema('JWT_EXPIRES_IN', '30m', ACCESS_TOKEN_MAX_SECONDS),
+    /** Segundos de vida del refresh token (cookie httpOnly, máx. 30 días). */
+    JWT_REFRESH_EXPIRES_IN: duracionSchema('JWT_REFRESH_EXPIRES_IN', '7d', REFRESH_TOKEN_MAX_SECONDS),
+    /** Cookie del refresh token con atributo Secure. Por defecto: sí en producción. */
+    COOKIE_SECURE: z.enum(['true', 'false']).optional(),
     CORS_ORIGIN: z.string().optional(),
     CLOUD_API_URL: z.string().optional(),
   })
@@ -56,7 +93,7 @@ const envSchema = z
     path: ['JWT_REFRESH_SECRET'],
   });
 
-export type Env = z.infer<typeof envSchema>;
+export type Env = z.output<typeof envSchema>;
 
 export class EnvValidationError extends Error {
   constructor(public readonly problemas: string[]) {

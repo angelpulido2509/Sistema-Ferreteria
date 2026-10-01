@@ -6,16 +6,19 @@ import {
   type SetupInicialInput,
 } from '../services/auth.service.js';
 import type { ApiResponse, UsuarioDTO } from '@ferreteria/shared';
+import { setRefreshCookie, clearRefreshCookie, readRefreshCookie } from '../lib/refreshCookie.js';
 
 export class AuthController {
   public static async login(
     req: Request,
-    res: Response<ApiResponse<LoginResult>>
+    res: Response<ApiResponse<Omit<LoginResult, 'refreshToken'>>>
   ): Promise<void> {
     try {
       const { email, password } = req.body;
-      const result = await authService.login(email, password);
+      const { refreshToken, ...result } = await authService.login(email, password);
 
+      // El refresh token no va en el cuerpo: solo en cookie httpOnly.
+      setRefreshCookie(res, refreshToken);
       res.status(200).json({
         success: true,
         data: result,
@@ -35,7 +38,8 @@ export class AuthController {
     res: Response<ApiResponse<{ token: string }>>
   ): Promise<void> {
     try {
-      const { refreshToken } = req.body;
+      // Cookie httpOnly (navegador); el cuerpo queda como alternativa para clientes no-navegador.
+      const refreshToken = readRefreshCookie(req) ?? (req.body as { refreshToken?: string }).refreshToken ?? '';
       const result = await authService.refreshToken(refreshToken);
 
       res.status(200).json({
@@ -44,12 +48,23 @@ export class AuthController {
         error: null,
       });
     } catch (error) {
+      clearRefreshCookie(res);
       res.status(401).json({
         success: false,
         data: null,
         error: error instanceof Error ? error.message : 'Error al renovar token',
       });
     }
+  }
+
+  /**
+   * POST /api/auth/logout — borra la cookie del refresh token.
+   * No exige JWT: debe funcionar aunque el access token ya haya expirado,
+   * para que nadie pueda reabrir la sesión en un equipo compartido.
+   */
+  public static logout(_req: Request, res: Response<ApiResponse<null>>): void {
+    clearRefreshCookie(res);
+    res.status(200).json({ success: true, data: null, error: null });
   }
 
   /** GET /api/auth/setup-status — indica si falta crear el primer ADMIN. */

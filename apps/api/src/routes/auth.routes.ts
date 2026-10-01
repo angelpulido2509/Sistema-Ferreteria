@@ -9,6 +9,8 @@ const router: Router = Router();
 
 router.post('/login', loginRateLimiter, validateBody(loginSchema), AuthController.login);
 router.post('/refresh', authPublicRateLimiter, validateBody(refreshSchema), AuthController.refresh);
+// Sin JWT a propósito: debe poder cerrar sesión con el access token ya expirado.
+router.post('/logout', AuthController.logout);
 router.get('/me', authenticateToken, AuthController.getProfile);
 
 // Asistente de primer arranque: sin JWT porque aún no existe ningún usuario ADMIN.
