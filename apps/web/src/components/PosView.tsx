@@ -12,6 +12,7 @@ import {
 } from '@ferreteria/shared';
 import { api } from '../lib/api.js';
 import { calcularTotalesCarrito } from '../lib/totalesCarrito.js';
+import { calcularCobro } from '../lib/cobroPos.js';
 import { ComprobanteModal } from './ComprobanteModal.js';
 import { useSyncStatus, syncManager } from '../lib/syncManager.js';
 import { offlineDb, type VentaOffline } from '../lib/offlineDb.js';
@@ -67,6 +68,7 @@ export const PosView: React.FC<PosViewProps> = ({
   // Drawer de Cobro Multimoneda (Guasdualito)
   const [isCheckoutDrawerOpen, setIsCheckoutDrawerOpen] = useState(false);
   const [lineasPago, setLineasPago] = useState<LineaPagoForm[]>([]);
+  const [vueltoMonedaElegida, setVueltoMonedaElegida] = useState<Moneda | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -131,6 +133,7 @@ export const PosView: React.FC<PosViewProps> = ({
         referencia: '',
       },
     ]);
+    setVueltoMonedaElegida(null);
     setIsCheckoutDrawerOpen(true);
   };
 
@@ -297,24 +300,20 @@ export const PosView: React.FC<PosViewProps> = ({
     ]);
   };
 
-  // Moneda de entrega de vuelto (política estricta Guasdualito):
-  const ultimoPago = lineasPago[lineasPago.length - 1];
-  const monedaVuelto = ultimoPago?.moneda || Moneda.USD;
-  let vueltoMonto = 0;
-  if (diferenciaUsd > 0.05) {
-    if (monedaVuelto === Moneda.USD) {
-      vueltoMonto = diferenciaUsd;
-    } else if (monedaVuelto === Moneda.VES) {
-      vueltoMonto = Math.round(diferenciaUsd * tasaVes * 100) / 100;
-    } else if (monedaVuelto === Moneda.COP) {
-      vueltoMonto = Math.round(diferenciaUsd * tasaCop);
-    }
-  }
+  // Vuelto (F3): solo sale de pagos en efectivo, en la moneda elegida entre las recibidas en efectivo
+  const cobro = calcularCobro(lineasPago, total, { ves: tasaVes, cop: tasaCop }, vueltoMonedaElegida);
+  const monedaVuelto = cobro.vueltoMoneda ?? Moneda.USD;
+  const vueltoMonto = cobro.vueltoMonto;
+  const faltaDinero = cobro.faltanteUsd > 0;
 
   const handleConfirmSale = async () => {
     if (cart.length === 0) return;
-    if (diferenciaUsd < -0.05) {
-      setError(`Monto insuficiente. Falta por cubrir $${Math.abs(diferenciaUsd).toFixed(2)} USD`);
+    if (faltaDinero) {
+      setError(`Monto insuficiente. Falta por cubrir ${cobro.faltanteUsd.toFixed(2)} USD`);
+      return;
+    }
+    if (cobro.bloqueo) {
+      setError(cobro.bloqueo);
       return;
     }
 
@@ -325,6 +324,7 @@ export const PosView: React.FC<PosViewProps> = ({
       const pagosDTO: PagoVentaDTO[] = lineasPago.map(l => ({
         metodoPago: l.metodoPago,
         moneda: l.moneda,
+        montoRecibido: l.montoMoneda,
         montoMoneda: l.montoMoneda,
         tasaAplicada: l.tasaAplicada,
         montoUsd: getMontoUsd(l),
@@ -342,6 +342,7 @@ export const PosView: React.FC<PosViewProps> = ({
         monedaFuncional: Moneda.USD,
         totalUsd: total,
         pagos: pagosDTO,
+        vueltoMoneda: cobro.vueltoMoneda ?? undefined,
       };
 
       let ventaRealizada: VentaDTO;
@@ -367,6 +368,7 @@ export const PosView: React.FC<PosViewProps> = ({
           total,
           totalUsd: total,
           pagos: pagosDTO,
+          vueltoMoneda: cobro.vueltoMoneda ?? undefined,
           fecha: new Date().toISOString(),
           intentos: 0,
           createdAt: new Date().toISOString(),
@@ -435,6 +437,7 @@ export const PosView: React.FC<PosViewProps> = ({
               total,
               totalUsd: total,
               pagos: pagosDTO,
+              vueltoMoneda: cobro.vueltoMoneda ?? undefined,
               fecha: new Date().toISOString(),
               intentos: 0,
               createdAt: new Date().toISOString(),
@@ -1421,7 +1424,7 @@ export const PosView: React.FC<PosViewProps> = ({
                 </div>
 
                 <div className="pt-space-xs border-t border-surface-container">
-                  {diferenciaUsd < -0.05 && (
+                  {faltaDinero && (
                     <div className="p-space-sm rounded-xl bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-300 flex items-start gap-space-xs">
                       <span className="material-symbols-outlined text-lg shrink-0 mt-0.5">error</span>
                       <div className="flex flex-col">
@@ -1436,14 +1439,21 @@ export const PosView: React.FC<PosViewProps> = ({
                     </div>
                   )}
 
-                  {diferenciaUsd >= -0.05 && diferenciaUsd <= 0.05 && (
+                  {!faltaDinero && !cobro.vueltoMoneda && !cobro.bloqueo && (
                     <div className="p-space-sm rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center gap-space-xs">
                       <span className="material-symbols-outlined text-lg">check_circle</span>
                       <span className="font-bold text-xs">¡Pago Completo! Monto cubierto exactamente.</span>
                     </div>
                   )}
 
-                  {diferenciaUsd > 0.05 && (
+                  {!faltaDinero && cobro.bloqueo && (
+                    <div className="p-space-sm rounded-xl bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-300 flex items-start gap-space-xs">
+                      <span className="material-symbols-outlined text-lg shrink-0 mt-0.5">block</span>
+                      <span className="font-bold text-xs">{cobro.bloqueo}</span>
+                    </div>
+                  )}
+
+                  {!faltaDinero && cobro.vueltoMoneda && (
                     <div className="p-space-sm rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-300 flex items-start gap-space-xs">
                       <span className="material-symbols-outlined text-lg shrink-0 mt-0.5">currency_exchange</span>
                       <div className="flex flex-col">
@@ -1453,9 +1463,24 @@ export const PosView: React.FC<PosViewProps> = ({
                           {monedaVuelto === Moneda.VES && `Bs. ${vueltoMonto.toFixed(2)}`}
                           {monedaVuelto === Moneda.COP && `${vueltoMonto.toLocaleString()} COP`}
                         </span>
-                        <span className="text-[11px] text-blue-600/80">
-                          (Calculado en {monedaVuelto} para respetar la política estricta de Guasdualito)
-                        </span>
+                        {cobro.monedasEfectivo.length > 1 ? (
+                          <label className="text-[11px] text-blue-600/80 flex items-center gap-1 mt-1">
+                            Entregar vuelto en:
+                            <select
+                              value={monedaVuelto}
+                              onChange={e => setVueltoMonedaElegida(e.target.value as Moneda)}
+                              className="bg-transparent border border-blue-500/30 rounded px-1 font-bold"
+                            >
+                              {cobro.monedasEfectivo.map(m => (
+                                <option key={m} value={m}>{m}</option>
+                              ))}
+                            </select>
+                          </label>
+                        ) : (
+                          <span className="text-[11px] text-blue-600/80">
+                            (Se entrega en {monedaVuelto}, la moneda del efectivo recibido)
+                          </span>
+                        )}
                       </div>
                     </div>
                   )}
@@ -1481,7 +1506,7 @@ export const PosView: React.FC<PosViewProps> = ({
               </button>
               <button
                 type="button"
-                disabled={diferenciaUsd < -0.05 || submitting}
+                disabled={faltaDinero || !!cobro.bloqueo || submitting}
                 onClick={handleConfirmSale}
                 className="py-2.5 px-space-lg rounded-xl bg-primary hover:bg-primary-container text-on-primary font-bold text-sm shadow-md transition disabled:opacity-40 flex items-center gap-2"
               >

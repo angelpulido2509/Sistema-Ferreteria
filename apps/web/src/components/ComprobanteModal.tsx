@@ -13,7 +13,10 @@ interface ComprobanteModalProps {
 export interface PagoComprobante {
   metodoPago: string;
   moneda: string;
+  /** Neto aplicado a la venta */
   montoMoneda: number;
+  montoRecibido?: number;
+  vuelto?: number;
   tasaAplicada: number;
   montoUsd: number;
   referencia?: string;
@@ -470,6 +473,11 @@ export function ComprobanteModal({ ventaId, initialVenta, onClose }: Comprobante
                         {p.moneda !== 'USD' && (
                           <div className="text-[9px] text-slate-500 font-mono">
                             (Equiv: ${Number(p.montoUsd).toFixed(2)} USD)
+                          </div>
+                        )}
+                        {Number(p.vuelto ?? 0) > 0 && (
+                          <div className="text-[9px] text-slate-600 font-mono">
+                            Recibido {Number(p.montoRecibido).toLocaleString('es-VE')} · Vuelto {Number(p.vuelto).toLocaleString('es-VE')} {p.moneda}
                           </div>
                         )}
                       </div>

@@ -1,6 +1,5 @@
 import { prisma } from '../lib/prisma.js';
 import { backupService } from './backup.service.js';
-import { Prisma } from '@prisma/client-local';
 import {
   EstadoTurnoCaja,
   TipoMovimientoCaja,
@@ -12,7 +11,10 @@ import {
   type CrearMovimientoCajaDTO,
   type CerrarCajaDTO,
   type ResumenArqueoDTO,
+  MONEDA_POR_METODO,
+  METODOS_EFECTIVO,
 } from '@ferreteria/shared';
+import { aMinimo, decimalAMinimo, desdeMinimo, minimoADecimal, type CodigoMoneda } from '../config/money.js';
 
 export class CajaService {
   /**
@@ -131,9 +133,9 @@ export class CajaService {
         cajaNumero: data.cajaNumero?.trim() || 'Caja 1',
         usuarioAperturaId: usuarioId,
         estado: EstadoTurnoCaja.ABIERTO,
-        montoInicialUsd: new Prisma.Decimal((data.montoInicialUsd || 0).toFixed(2)),
-        montoInicialCop: new Prisma.Decimal((data.montoInicialCop || 0).toFixed(2)),
-        montoInicialVes: new Prisma.Decimal((data.montoInicialVes || 0).toFixed(2)),
+        montoInicialUsd: minimoADecimal(aMinimo(data.montoInicialUsd || 0, 'USD'), 'USD'),
+        montoInicialCop: minimoADecimal(aMinimo(data.montoInicialCop || 0, 'COP'), 'COP'),
+        montoInicialVes: minimoADecimal(aMinimo(data.montoInicialVes || 0, 'VES'), 'VES'),
       },
       include: {
         usuarioApertura: true,
@@ -174,7 +176,7 @@ export class CajaService {
         turnoCajaId: data.turnoCajaId,
         usuarioId,
         tipo: data.tipo,
-        monto: new Prisma.Decimal(data.monto.toFixed(2)),
+        monto: minimoADecimal(aMinimo(data.monto, data.moneda as CodigoMoneda), data.moneda as CodigoMoneda),
         moneda: data.moneda,
         motivo: data.motivo.trim(),
       },
@@ -197,7 +199,18 @@ export class CajaService {
   }
 
   /**
-   * Calcula el arqueo y balance actual del turno (Reporte X parcial o base de Reporte Z)
+   * Calcula el arqueo y balance actual del turno (Reporte X parcial o base de Reporte Z).
+   *
+   * Efectivo esperado en gaveta, por moneda (F3):
+   *
+   *   esperado = fondo inicial
+   *            + Σ montoRecibido de los pagos en EFECTIVO de esa moneda
+   *            − Σ vuelto entregado en esa moneda
+   *            + ingresos manuales − egresos manuales
+   *
+   * Como el vuelto solo sale de pagos en efectivo, equivale a fondo + Σ neto (montoMoneda) de los
+   * pagos en efectivo + ingresos − egresos. Zelle, Nequi, pago móvil y punto de venta no entran al
+   * cuadre físico. Todo se suma en unidades mínimas enteras (money.ts).
    */
   public async calcularResumenTurno(turnoCajaId: string): Promise<ResumenArqueoDTO> {
     const turno = await prisma.turnoCaja.findUnique({
@@ -236,66 +249,60 @@ export class CajaService {
       },
     });
 
-    // Desglose de ventas por método
-    const ventasPorMetodo = {
-      efectivoUsd: { monto: 0, transacciones: 0 },
-      efectivoCop: { monto: 0, transacciones: 0 },
-      pagoMovilVes: { monto: 0, transacciones: 0 },
-      tarjetaVes: { monto: 0, transacciones: 0 },
-      zelleUsd: { monto: 0, transacciones: 0 },
-      totalVentasUsd: 0,
-      totalTransacciones: ventasTurno.length,
-    };
+    const porMetodo = Object.fromEntries(
+      Object.values(MetodoPago).map((m) => [m, { monto: 0, transacciones: 0 }])
+    ) as Record<MetodoPago, { monto: number; transacciones: number }>;
+    const cero = (): Record<CodigoMoneda, number> => ({ USD: 0, COP: 0, VES: 0 });
+    const recibidoEfectivo = cero();
+    const vuelto = cero();
+    let totalVentasCentavos = 0;
 
     for (const v of ventasTurno) {
-      ventasPorMetodo.totalVentasUsd += Number(v.totalUsd ?? v.total);
-
-      if (v.pagos && v.pagos.length > 0) {
-        for (const p of v.pagos) {
-          const montoMoneda = Number(p.montoMoneda);
-          if (p.metodoPago === MetodoPago.EFECTIVO_USD) {
-            ventasPorMetodo.efectivoUsd.monto += montoMoneda;
-            ventasPorMetodo.efectivoUsd.transacciones++;
-          } else if (p.metodoPago === MetodoPago.EFECTIVO_COP) {
-            ventasPorMetodo.efectivoCop.monto += montoMoneda;
-            ventasPorMetodo.efectivoCop.transacciones++;
-          } else if (p.metodoPago === MetodoPago.PAGO_MOVIL_VES) {
-            ventasPorMetodo.pagoMovilVes.monto += montoMoneda;
-            ventasPorMetodo.pagoMovilVes.transacciones++;
-          } else if (p.metodoPago === MetodoPago.TARJETA_VES) {
-            ventasPorMetodo.tarjetaVes.monto += montoMoneda;
-            ventasPorMetodo.tarjetaVes.transacciones++;
-          } else if (p.metodoPago === MetodoPago.ZELLE_USD) {
-            ventasPorMetodo.zelleUsd.monto += montoMoneda;
-            ventasPorMetodo.zelleUsd.transacciones++;
-          } else {
-            // Fallback
-            ventasPorMetodo.efectivoUsd.monto += Number(p.montoUsd);
-            ventasPorMetodo.efectivoUsd.transacciones++;
-          }
+      totalVentasCentavos += decimalAMinimo(v.totalUsd ?? v.total, 'USD');
+      for (const p of v.pagos) {
+        const moneda = p.moneda as CodigoMoneda;
+        const metodo = p.metodoPago as MetodoPago;
+        porMetodo[metodo].monto += decimalAMinimo(p.montoMoneda, moneda);
+        porMetodo[metodo].transacciones++;
+        if (METODOS_EFECTIVO.includes(metodo)) {
+          recibidoEfectivo[moneda] += decimalAMinimo(p.montoRecibido, moneda);
         }
-      } else {
-        ventasPorMetodo.efectivoUsd.monto += Number(v.total);
-        ventasPorMetodo.efectivoUsd.transacciones++;
+        vuelto[moneda] += decimalAMinimo(p.vuelto, moneda);
       }
     }
 
-    // Redondear totales de ventas
-    ventasPorMetodo.totalVentasUsd = Math.round(ventasPorMetodo.totalVentasUsd * 100) / 100;
-    ventasPorMetodo.efectivoUsd.monto = Math.round(ventasPorMetodo.efectivoUsd.monto * 100) / 100;
-    ventasPorMetodo.pagoMovilVes.monto = Math.round(ventasPorMetodo.pagoMovilVes.monto * 100) / 100;
-    ventasPorMetodo.tarjetaVes.monto = Math.round(ventasPorMetodo.tarjetaVes.monto * 100) / 100;
-    ventasPorMetodo.zelleUsd.monto = Math.round(ventasPorMetodo.zelleUsd.monto * 100) / 100;
+    const metodoDTO = (m: MetodoPago) => ({
+      monto: desdeMinimo(porMetodo[m].monto, MONEDA_POR_METODO[m] as CodigoMoneda),
+      transacciones: porMetodo[m].transacciones,
+    });
+    const ventasPorMetodo = {
+      efectivoUsd: metodoDTO(MetodoPago.EFECTIVO_USD),
+      efectivoCop: metodoDTO(MetodoPago.EFECTIVO_COP),
+      pagoMovilVes: metodoDTO(MetodoPago.PAGO_MOVIL_VES),
+      tarjetaVes: metodoDTO(MetodoPago.TARJETA_VES),
+      zelleUsd: metodoDTO(MetodoPago.ZELLE_USD),
+      nequiCop: metodoDTO(MetodoPago.NEQUI_COP),
+      totalVentasUsd: desdeMinimo(totalVentasCentavos, 'USD'),
+      totalTransacciones: ventasTurno.length,
+    };
 
-    // Desglose de movimientos manuales
+    // Movimientos manuales por moneda
+    const ingresos = cero();
+    const egresos = cero();
+    for (const m of turno.movimientos) {
+      const moneda = m.moneda as CodigoMoneda;
+      const monto = decimalAMinimo(m.monto, moneda);
+      if (m.tipo === TipoMovimientoCaja.INGRESO) ingresos[moneda] += monto;
+      else egresos[moneda] += monto;
+    }
     const movimientosManuales = {
-      ingresosUsd: 0,
-      egresosUsd: 0,
-      ingresosCop: 0,
-      egresosCop: 0,
-      ingresosVes: 0,
-      egresosVes: 0,
-      lista: turno.movimientos.map((m: any) => ({
+      ingresosUsd: desdeMinimo(ingresos.USD, 'USD'),
+      egresosUsd: desdeMinimo(egresos.USD, 'USD'),
+      ingresosCop: desdeMinimo(ingresos.COP, 'COP'),
+      egresosCop: desdeMinimo(egresos.COP, 'COP'),
+      ingresosVes: desdeMinimo(ingresos.VES, 'VES'),
+      egresosVes: desdeMinimo(egresos.VES, 'VES'),
+      lista: turno.movimientos.map((m) => ({
         id: m.id,
         turnoCajaId: m.turnoCajaId,
         usuarioId: m.usuarioId,
@@ -308,48 +315,27 @@ export class CajaService {
       })),
     };
 
-    for (const m of turno.movimientos) {
-      const monto = Number(m.monto);
-      if (m.tipo === TipoMovimientoCaja.INGRESO) {
-        if (m.moneda === Moneda.USD) movimientosManuales.ingresosUsd += monto;
-        else if (m.moneda === Moneda.COP) movimientosManuales.ingresosCop += monto;
-        else if (m.moneda === Moneda.VES) movimientosManuales.ingresosVes += monto;
-      } else {
-        if (m.moneda === Moneda.USD) movimientosManuales.egresosUsd += monto;
-        else if (m.moneda === Moneda.COP) movimientosManuales.egresosCop += monto;
-        else if (m.moneda === Moneda.VES) movimientosManuales.egresosVes += monto;
-      }
-    }
+    const fondo: Record<CodigoMoneda, number> = {
+      USD: decimalAMinimo(turno.montoInicialUsd, 'USD'),
+      COP: decimalAMinimo(turno.montoInicialCop, 'COP'),
+      VES: decimalAMinimo(turno.montoInicialVes, 'VES'),
+    };
+    const esperado = (m: CodigoMoneda) => fondo[m] + recibidoEfectivo[m] - vuelto[m] + ingresos[m] - egresos[m];
 
     const fondosIniciales = {
-      usd: Number(turno.montoInicialUsd ?? 0),
-      cop: Number(turno.montoInicialCop ?? 0),
-      ves: Number(turno.montoInicialVes ?? 0),
+      usd: desdeMinimo(fondo.USD, 'USD'),
+      cop: desdeMinimo(fondo.COP, 'COP'),
+      ves: desdeMinimo(fondo.VES, 'VES'),
     };
-
-    // Dinero esperado en gaveta = Fondo Inicial + Ventas en Efectivo + Ingresos Manuales - Egresos Manuales
     const esperadoEnCaja = {
-      efectivoUsd:
-        Math.round(
-          (fondosIniciales.usd +
-            ventasPorMetodo.efectivoUsd.monto +
-            movimientosManuales.ingresosUsd -
-            movimientosManuales.egresosUsd) *
-            100
-        ) / 100,
-      efectivoCop: Math.round(
-        fondosIniciales.cop +
-          ventasPorMetodo.efectivoCop.monto +
-          movimientosManuales.ingresosCop -
-          movimientosManuales.egresosCop
-      ),
-      efectivoVes:
-        Math.round(
-          (fondosIniciales.ves +
-            movimientosManuales.ingresosVes -
-            movimientosManuales.egresosVes) *
-            100
-        ) / 100,
+      efectivoUsd: desdeMinimo(esperado('USD'), 'USD'),
+      efectivoCop: desdeMinimo(esperado('COP'), 'COP'),
+      efectivoVes: desdeMinimo(esperado('VES'), 'VES'),
+    };
+    const vueltoEntregado = {
+      usd: desdeMinimo(vuelto.USD, 'USD'),
+      cop: desdeMinimo(vuelto.COP, 'COP'),
+      ves: desdeMinimo(vuelto.VES, 'VES'),
     };
 
     const turnoDTO = this.mapToDTO(turno);
@@ -357,16 +343,21 @@ export class CajaService {
     let conteoFisico: { usd: number; cop: number; ves: number } | undefined = undefined;
     let diferencias: { usd: number; cop: number; ves: number } | undefined = undefined;
 
-    if (turnoDTO.conteoFisicoUsd !== null && turnoDTO.conteoFisicoUsd !== undefined) {
+    if (turno.conteoFisicoUsd !== null) {
+      const conteo: Record<CodigoMoneda, number> = {
+        USD: decimalAMinimo(turno.conteoFisicoUsd, 'USD'),
+        COP: decimalAMinimo(turno.conteoFisicoCop, 'COP'),
+        VES: decimalAMinimo(turno.conteoFisicoVes, 'VES'),
+      };
       conteoFisico = {
-        usd: turnoDTO.conteoFisicoUsd,
-        cop: turnoDTO.conteoFisicoCop ?? 0,
-        ves: turnoDTO.conteoFisicoVes ?? 0,
+        usd: desdeMinimo(conteo.USD, 'USD'),
+        cop: desdeMinimo(conteo.COP, 'COP'),
+        ves: desdeMinimo(conteo.VES, 'VES'),
       };
       diferencias = {
-        usd: Math.round((conteoFisico.usd - esperadoEnCaja.efectivoUsd) * 100) / 100,
-        cop: Math.round(conteoFisico.cop - esperadoEnCaja.efectivoCop),
-        ves: Math.round((conteoFisico.ves - esperadoEnCaja.efectivoVes) * 100) / 100,
+        usd: desdeMinimo(conteo.USD - esperado('USD'), 'USD'),
+        cop: desdeMinimo(conteo.COP - esperado('COP'), 'COP'),
+        ves: desdeMinimo(conteo.VES - esperado('VES'), 'VES'),
       };
     }
 
@@ -375,6 +366,7 @@ export class CajaService {
       fondosIniciales,
       ventasPorMetodo,
       movimientosManuales,
+      vueltoEntregado,
       esperadoEnCaja,
       conteoFisico,
       diferencias,
@@ -404,11 +396,15 @@ export class CajaService {
     // Calcular resumen previo al cierre
     const resumen = await this.calcularResumenTurno(data.turnoCajaId);
 
-    const diferenciaUsd =
-      Math.round((data.conteoFisicoUsd - resumen.esperadoEnCaja.efectivoUsd) * 100) / 100;
-    const diferenciaCop = Math.round(data.conteoFisicoCop - resumen.esperadoEnCaja.efectivoCop);
-    const diferenciaVes =
-      Math.round(((data.conteoFisicoVes || 0) - resumen.esperadoEnCaja.efectivoVes) * 100) / 100;
+    const conteo: Record<CodigoMoneda, number> = {
+      USD: aMinimo(data.conteoFisicoUsd, 'USD'),
+      COP: aMinimo(data.conteoFisicoCop, 'COP'),
+      VES: aMinimo(data.conteoFisicoVes ?? 0, 'VES'),
+    };
+    const usd = (v: number) => minimoADecimal(aMinimo(v, 'USD'), 'USD');
+    const cop = (v: number) => minimoADecimal(aMinimo(v, 'COP'), 'COP');
+    const ves = (v: number) => minimoADecimal(aMinimo(v, 'VES'), 'VES');
+    const { ventasPorMetodo: vpm, movimientosManuales: mm, esperadoEnCaja: esp, vueltoEntregado: vu } = resumen;
 
     await prisma.turnoCaja.update({
       where: { id: data.turnoCajaId },
@@ -416,24 +412,27 @@ export class CajaService {
         estado: EstadoTurnoCaja.CERRADO,
         usuarioCierreId: usuarioId,
         fechaCierre: new Date(),
-        conteoFisicoUsd: new Prisma.Decimal(data.conteoFisicoUsd.toFixed(2)),
-        conteoFisicoCop: new Prisma.Decimal(data.conteoFisicoCop.toFixed(2)),
-        conteoFisicoVes: new Prisma.Decimal((data.conteoFisicoVes || 0).toFixed(2)),
-        ventasTotalesUsd: new Prisma.Decimal(resumen.ventasPorMetodo.totalVentasUsd.toFixed(2)),
-        ventasEfectivoUsd: new Prisma.Decimal(resumen.ventasPorMetodo.efectivoUsd.monto.toFixed(2)),
-        ventasEfectivoCop: new Prisma.Decimal(resumen.ventasPorMetodo.efectivoCop.monto.toFixed(2)),
-        ventasPagoMovilVes: new Prisma.Decimal(resumen.ventasPorMetodo.pagoMovilVes.monto.toFixed(2)),
-        ventasTarjetaVes: new Prisma.Decimal(resumen.ventasPorMetodo.tarjetaVes.monto.toFixed(2)),
-        ventasZelleUsd: new Prisma.Decimal(resumen.ventasPorMetodo.zelleUsd.monto.toFixed(2)),
-        ingresosManualesUsd: new Prisma.Decimal(resumen.movimientosManuales.ingresosUsd.toFixed(2)),
-        egresosManualesUsd: new Prisma.Decimal(resumen.movimientosManuales.egresosUsd.toFixed(2)),
-        ingresosManualesCop: new Prisma.Decimal(resumen.movimientosManuales.ingresosCop.toFixed(2)),
-        egresosManualesCop: new Prisma.Decimal(resumen.movimientosManuales.egresosCop.toFixed(2)),
-        ingresosManualesVes: new Prisma.Decimal(resumen.movimientosManuales.ingresosVes.toFixed(2)),
-        egresosManualesVes: new Prisma.Decimal(resumen.movimientosManuales.egresosVes.toFixed(2)),
-        diferenciaUsd: new Prisma.Decimal(diferenciaUsd.toFixed(2)),
-        diferenciaCop: new Prisma.Decimal(diferenciaCop.toFixed(2)),
-        diferenciaVes: new Prisma.Decimal(diferenciaVes.toFixed(2)),
+        conteoFisicoUsd: minimoADecimal(conteo.USD, 'USD'),
+        conteoFisicoCop: minimoADecimal(conteo.COP, 'COP'),
+        conteoFisicoVes: minimoADecimal(conteo.VES, 'VES'),
+        ventasTotalesUsd: usd(vpm.totalVentasUsd),
+        ventasEfectivoUsd: usd(vpm.efectivoUsd.monto),
+        ventasEfectivoCop: cop(vpm.efectivoCop.monto),
+        ventasPagoMovilVes: ves(vpm.pagoMovilVes.monto),
+        ventasTarjetaVes: ves(vpm.tarjetaVes.monto),
+        ventasZelleUsd: usd(vpm.zelleUsd.monto),
+        vueltoUsd: usd(vu.usd),
+        vueltoCop: cop(vu.cop),
+        vueltoVes: ves(vu.ves),
+        ingresosManualesUsd: usd(mm.ingresosUsd),
+        egresosManualesUsd: usd(mm.egresosUsd),
+        ingresosManualesCop: cop(mm.ingresosCop),
+        egresosManualesCop: cop(mm.egresosCop),
+        ingresosManualesVes: ves(mm.ingresosVes),
+        egresosManualesVes: ves(mm.egresosVes),
+        diferenciaUsd: minimoADecimal(conteo.USD - aMinimo(esp.efectivoUsd, 'USD'), 'USD'),
+        diferenciaCop: minimoADecimal(conteo.COP - aMinimo(esp.efectivoCop, 'COP'), 'COP'),
+        diferenciaVes: minimoADecimal(conteo.VES - aMinimo(esp.efectivoVes, 'VES'), 'VES'),
         observaciones: data.observaciones?.trim() || null,
       },
     });

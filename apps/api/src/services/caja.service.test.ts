@@ -270,6 +270,8 @@ describe('CajaService', () => {
             {
               metodoPago: MetodoPago.EFECTIVO_USD,
               moneda: Moneda.USD,
+              montoRecibido: 30.0,
+              vuelto: 0,
               montoMoneda: 30.0,
               montoUsd: 30.0,
             },
@@ -283,6 +285,8 @@ describe('CajaService', () => {
             {
               metodoPago: MetodoPago.EFECTIVO_COP,
               moneda: Moneda.COP,
+              montoRecibido: 82000.0,
+              vuelto: 0,
               montoMoneda: 82000.0,
               montoUsd: 20.0,
             },
@@ -296,6 +300,8 @@ describe('CajaService', () => {
             {
               metodoPago: MetodoPago.PAGO_MOVIL_VES,
               moneda: Moneda.VES,
+              montoRecibido: 900.0,
+              vuelto: 0,
               montoMoneda: 900.0,
               montoUsd: 15.0,
             },
@@ -355,6 +361,8 @@ describe('CajaService', () => {
             {
               metodoPago: MetodoPago.EFECTIVO_USD,
               moneda: Moneda.USD,
+              montoRecibido: 40.0,
+              vuelto: 0,
               montoMoneda: 40.0,
               montoUsd: 40.0,
             },

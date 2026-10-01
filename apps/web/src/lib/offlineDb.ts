@@ -23,6 +23,8 @@ export interface VentaOffline {
   total: number;
   totalUsd: number;
   pagos: PagoVentaDTO[];
+  /** Moneda del vuelto elegida en el POS (F3) */
+  vueltoMoneda?: Moneda;
   fecha: string;
   intentos: number;
   errorSincronizacion?: string;

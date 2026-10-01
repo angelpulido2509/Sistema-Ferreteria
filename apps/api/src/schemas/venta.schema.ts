@@ -34,6 +34,8 @@ export const crearVentaSchema = z.object({
   porcentajeImpuesto: z.number().min(0).max(1).optional(),
   monedaFuncional: z.enum(Moneda).optional(),
   pagos: z.array(pagoVentaSchema).max(20).optional(),
+  /** Moneda del vuelto: una de las monedas recibidas en efectivo (F3). */
+  vueltoMoneda: z.enum(Moneda).optional(),
 });
 
 export const anularVentaSchema = z.object({

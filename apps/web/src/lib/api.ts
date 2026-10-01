@@ -326,6 +326,7 @@ export const api = {
     porcentajeImpuesto?: number;
     monedaFuncional?: Moneda;
     pagos?: PagoVentaDTO[];
+    vueltoMoneda?: Moneda;
   }): Promise<VentaDTO> {
     return await apiRequest<VentaDTO>('/ventas', {
       method: 'POST',

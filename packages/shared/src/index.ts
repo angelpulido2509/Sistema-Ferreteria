@@ -378,6 +378,9 @@ export interface TurnoCajaDTO {
   ventasPagoMovilVes?: number | null;
   ventasTarjetaVes?: number | null;
   ventasZelleUsd?: number | null;
+  vueltoUsd?: number | null;
+  vueltoCop?: number | null;
+  vueltoVes?: number | null;
   ingresosManualesUsd?: number | null;
   egresosManualesUsd?: number | null;
   ingresosManualesCop?: number | null;
@@ -406,6 +409,8 @@ export interface ResumenArqueoDTO {
     pagoMovilVes: { monto: number; transacciones: number };
     tarjetaVes: { monto: number; transacciones: number };
     zelleUsd: { monto: number; transacciones: number };
+    /** Billetera en pesos: no es efectivo, no entra al cuadre físico */
+    nequiCop: { monto: number; transacciones: number };
     totalVentasUsd: number;
     totalTransacciones: number;
   };
@@ -417,6 +422,12 @@ export interface ResumenArqueoDTO {
     ingresosVes: number;
     egresosVes: number;
     lista: MovimientoCajaDTO[];
+  };
+  /** Vuelto entregado en el turno, por moneda (F3) */
+  vueltoEntregado: {
+    usd: number;
+    cop: number;
+    ves: number;
   };
   esperadoEnCaja: {
     efectivoUsd: number;

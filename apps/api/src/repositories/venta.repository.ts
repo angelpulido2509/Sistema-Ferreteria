@@ -37,6 +37,8 @@ export interface CrearVentaData {
   descuentoTotal: Prisma.Decimal;
   descuentoAplicadoPorId: string | null;
   monedaFuncional: Moneda;
+  /** Moneda en que se entregó el vuelto (null si no hubo vuelto) */
+  vueltoMoneda: Moneda | null;
   turnoCajaId?: string | null;
   lineas: LineaVentaData[];
   pagos: PagoVentaData[];
@@ -141,6 +143,7 @@ export class VentaRepository {
           descuentoTotal: data.descuentoTotal,
           descuentoAplicadoPorId: data.descuentoAplicadoPorId,
           monedaFuncional: data.monedaFuncional,
+          vueltoMoneda: data.vueltoMoneda,
           estado: EstadoVenta.COMPLETADA,
           turnoCajaId: data.turnoCajaId || null,
           detalles: {

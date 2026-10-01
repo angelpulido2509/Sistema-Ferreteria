@@ -141,6 +141,7 @@ class SyncManager {
           porcentajeImpuesto: v.porcentajeImpuesto,
           monedaFuncional: v.monedaFuncional,
           pagos: v.pagos,
+          vueltoMoneda: v.vueltoMoneda,
         });
 
         // Venta creada exitosamente en backend: remover de la cola local
