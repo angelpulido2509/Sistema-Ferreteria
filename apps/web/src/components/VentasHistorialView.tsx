@@ -7,6 +7,7 @@ import {
   type VentaDTO,
 } from '@ferreteria/shared';
 import { api } from '../lib/api';
+import { numeroVenta } from '../lib/numeroVenta.js';
 import { useSyncStatus } from '../lib/syncManager';
 import { offlineDb, type VentaOffline } from '../lib/offlineDb';
 import { ComprobanteModal } from './ComprobanteModal';
@@ -96,7 +97,7 @@ export const VentasHistorialView: React.FC<VentasHistorialViewProps> = ({
   const filteredVentas = ventas.filter(v => {
     const q = search.toLowerCase();
     const clienteName = v.cliente?.nombre.toLowerCase() || '';
-    const facNum = `vta-2024-${String(v.id).padStart(4, '0')}`.toLowerCase();
+    const facNum = numeroVenta(v).toLowerCase();
     const docId = v.cliente?.identificacion.toLowerCase() || '';
     const matchesSearch = !search || clienteName.includes(q) || facNum.includes(q) || docId.includes(q);
 
@@ -458,7 +459,7 @@ export const VentasHistorialView: React.FC<VentasHistorialViewProps> = ({
                   filteredVentas.map(v => {
                     const isSelected = activeVenta?.id === v.id;
                     const isAnulada = v.estado === EstadoVenta.ANULADA;
-                    const facIdStr = `#VTA-2024-${String(v.id).padStart(4, '0')}`;
+                    const facIdStr = numeroVenta(v);
                     const fechaStr = new Date(v.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                     return (
@@ -577,7 +578,7 @@ export const VentasHistorialView: React.FC<VentasHistorialViewProps> = ({
                   <span className="material-symbols-outlined text-primary-fixed-dim text-2xl">receipt</span>
                   <div className="flex flex-col">
                     <span className="font-label-lg text-label-lg font-bold leading-tight">
-                      Comprobante #VTA-2024-{String(activeVenta.id).padStart(4, '0')}
+                      Comprobante {numeroVenta(activeVenta)}
                     </span>
                     <span className="font-body-sm text-body-sm text-secondary-fixed-dim">
                       {new Date(activeVenta.createdAt).toLocaleDateString()} • {new Date(activeVenta.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -902,7 +903,7 @@ export const VentasHistorialView: React.FC<VentasHistorialViewProps> = ({
                   Venta a Anular:
                 </span>
                 <span className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                  #VTA-2024-{String(activeVenta.id).padStart(4, '0')} — ${Number(activeVenta.total).toFixed(2)} USD
+                  {numeroVenta(activeVenta)} — ${Number(activeVenta.total).toFixed(2)} USD
                 </span>
                 <span className="font-body-sm text-body-sm text-secondary">
                   Cliente: {activeVenta.cliente?.nombre || 'Cliente Mostrador'}

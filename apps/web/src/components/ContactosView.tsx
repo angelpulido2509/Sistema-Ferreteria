@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { ClienteDTO, ProveedorDTO, VentaDTO } from '@ferreteria/shared';
+import { numeroVenta } from '../lib/numeroVenta.js';
 
 interface ContactosViewProps {
   initialTab?: 'clientes' | 'proveedores';
@@ -622,7 +623,7 @@ export const ContactosView: React.FC<ContactosViewProps> = ({
                       >
                         <div className="flex flex-col">
                           <span className="font-label-sm text-label-sm text-primary font-bold">
-                            #VTA-2024-{String(v.id).padStart(4, '0')}
+                            {numeroVenta(v)}
                           </span>
                           <span className="font-body-sm text-body-sm text-secondary">
                             {new Date(v.createdAt).toLocaleDateString()}

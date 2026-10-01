@@ -31,6 +31,7 @@ export interface ComprobanteData {
   };
   comprobante?: {
     numero: string;
+    leyenda?: string;
     fecha: string;
     estado: string;
     monedaFuncional?: string;
@@ -101,7 +102,7 @@ export function ComprobanteModal({ ventaId, initialVenta, onClose }: Comprobante
           telefono: '+58 212 994-8800',
         },
         comprobante: {
-          numero: (initialVenta as any).numeroComprobanteLocal || (isOfflineId ? 'OFF-LOCAL' : `FAC-${initialVenta.id}`),
+          numero: (initialVenta as any).numeroComprobanteLocal || (isOfflineId ? 'OFF-LOCAL' : initialVenta.numero ?? 'SIN NÚMERO'),
           fecha: String(initialVenta.fecha || initialVenta.createdAt || new Date().toISOString()),
           estado: initialVenta.estado,
         },
@@ -126,7 +127,7 @@ export function ComprobanteModal({ ventaId, initialVenta, onClose }: Comprobante
         },
         pagos: initialVenta.pagos as any,
         venta: {
-          numero: (initialVenta as any).numeroComprobanteLocal || (isOfflineId ? 'OFF-LOCAL' : `FAC-${initialVenta.id}`),
+          numero: (initialVenta as any).numeroComprobanteLocal || (isOfflineId ? 'OFF-LOCAL' : initialVenta.numero ?? 'SIN NÚMERO'),
           fecha: String(initialVenta.fecha || initialVenta.createdAt || new Date().toISOString()),
           cliente: initialVenta.cliente?.nombre || 'Consumidor Final',
           identificacion: initialVenta.cliente?.identificacion || 'V-00000000',
@@ -218,7 +219,9 @@ export function ComprobanteModal({ ventaId, initialVenta, onClose }: Comprobante
   const vSubtotal = data?.venta?.subtotal ?? data?.totales?.subtotal ?? 0;
   const vImpuesto = data?.venta?.impuesto ?? data?.totales?.impuesto ?? 0;
   const vTotal = data?.venta?.total ?? data?.totales?.total ?? 0;
-  const vNumero = data?.venta?.numero || data?.comprobante?.numero || `FAC-${ventaId}`;
+  const vNumero = data?.comprobante?.numero || data?.venta?.numero || 'SIN NÚMERO';
+  // Hasta que el contador confirme el mecanismo fiscal, ningún documento es factura fiscal (addendum §2)
+  const vLeyenda = data?.comprobante?.leyenda || 'COMPROBANTE — NO VÁLIDO COMO FACTURA FISCAL';
   const vFecha = data?.venta?.fecha || data?.comprobante?.fecha || new Date().toISOString();
   const vEstado = data?.venta?.estado || data?.comprobante?.estado || 'COMPLETADA';
   const vCliente = data?.venta?.cliente || data?.cliente?.nombre || 'Consumidor Final';
@@ -336,6 +339,9 @@ export function ComprobanteModal({ ventaId, initialVenta, onClose }: Comprobante
                 <div className="flex justify-between font-bold">
                   <span>DOCUMENTO:</span>
                   <span className="text-blue-700">{vNumero}</span>
+                </div>
+                <div className="text-center font-bold text-[10px] text-slate-800 border border-slate-400 rounded py-0.5">
+                  {vLeyenda}
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>FECHA:</span>

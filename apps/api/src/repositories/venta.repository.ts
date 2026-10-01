@@ -5,6 +5,7 @@ import {
   EstadoTurnoCaja,
   TipoMovimientoCaja,
   RolUsuario,
+  TipoDocumento,
   METODOS_EFECTIVO,
   TipoMovimientoInventario,
   Moneda,
@@ -50,6 +51,9 @@ export interface CrearVentaData {
   monedaFuncional: Moneda;
   /** Moneda en que se entregó el vuelto (null si no hubo vuelto) */
   vueltoMoneda: Moneda | null;
+  tipoDocumento: TipoDocumento;
+  /** Serie del correlativo (p. ej. N001); el número se asigna dentro de la transacción (F9) */
+  serie: string;
   lineas: LineaVentaData[];
   pagos: PagoVentaData[];
 }
@@ -156,9 +160,20 @@ export class VentaRepository {
         }
       }
 
-      // 2. Crear la venta con sus detalles y pagos (montos calculados por el servidor)
+      // 2. Correlativo por serie (F9): se incrementa en la misma transacción. Si la venta falla,
+      //    el incremento se revierte con ella: no quedan huecos. Anular no libera el número.
+      const secuencia = await tx.secuenciaDocumento.upsert({
+        where: { serie: data.serie },
+        create: { serie: data.serie, ultimoNumero: 1 },
+        update: { ultimoNumero: { increment: 1 } },
+      });
+      const numero = `${data.serie}-${String(secuencia.ultimoNumero).padStart(6, '0')}`;
+
+      // 3. Crear la venta con sus detalles y pagos (montos calculados por el servidor)
       const venta = await tx.venta.create({
         data: {
+          numero,
+          tipoDocumento: data.tipoDocumento,
           clienteId: data.clienteId,
           usuarioId: data.usuarioId,
           subtotal: data.subtotal,
@@ -199,7 +214,7 @@ export class VentaRepository {
         include: INCLUDE_VENTA,
       });
 
-      // 3. Descontar stock y registrar MovimientoInventario tipo SALIDA
+      // 4. Descontar stock y registrar MovimientoInventario tipo SALIDA
       for (const linea of data.lineas) {
         await tx.producto.update({
           where: { id: linea.productoId },
@@ -217,7 +232,7 @@ export class VentaRepository {
         });
       }
 
-      // 4. Registrar en SyncQueue para sincronización diferida hacia la nube
+      // 5. Registrar en SyncQueue para sincronización diferida hacia la nube
       await registrarSync('Venta', venta.id, OperacionSync.CREAR, venta as unknown as Record<string, unknown>, tx);
 
       return venta;

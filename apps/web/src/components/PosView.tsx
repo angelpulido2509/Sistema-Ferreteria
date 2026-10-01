@@ -864,7 +864,7 @@ export const PosView: React.FC<PosViewProps> = ({
                   Comprobante Actual
                 </span>
                 <div className="font-label-sm text-label-sm text-secondary">
-                  Orden #VTA-2024-0943 • Emisión Inmediata
+                  Nueva venta • El número se asigna al confirmar
                 </div>
               </div>
             </div>

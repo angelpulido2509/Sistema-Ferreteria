@@ -86,6 +86,7 @@ interface ConfigVenta {
   tasaVigenciaHoras: number;
   descuentoMaxCajeroPct: Prisma.Decimal | number | string;
   metodosHabilitados: unknown;
+  serieNotaEntrega: string;
 }
 
 /** metodosHabilitados se guarda como JSON (array o texto según el proveedor). */
@@ -428,6 +429,9 @@ export class VentaService {
       descuentoAplicadoPorId: totales.descuentoCentavos > 0 ? usuario.id : null,
       monedaFuncional: input.monedaFuncional ?? Moneda.USD,
       vueltoMoneda,
+      // Fase 1: todo documento es NOTA_ENTREGA (el documento dual es la sección 3 del addendum)
+      tipoDocumento: TipoDocumento.NOTA_ENTREGA,
+      serie: config.serieNotaEntrega || 'N001',
       lineas,
       pagos,
     });
@@ -467,7 +471,11 @@ export class VentaService {
         telefono: config.telefono,
       },
       comprobante: {
-        numero: `FAC-${venta.id.toString().padStart(6, '0')}`,
+        // F9: correlativo real por serie (antes "FAC-" + UUID)
+        numero: venta.numero ?? 'SIN NÚMERO',
+        tipoDocumento: venta.tipoDocumento ?? TipoDocumento.NOTA_ENTREGA,
+        // Hasta que el contador confirme el mecanismo fiscal (addendum §2)
+        leyenda: 'COMPROBANTE — NO VÁLIDO COMO FACTURA FISCAL',
         fecha: venta.fecha,
         estado: venta.estado,
         monedaFuncional: venta.monedaFuncional || Moneda.USD,
