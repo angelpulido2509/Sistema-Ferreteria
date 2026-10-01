@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma.js';
 import { EstadoVenta } from '@ferreteria/shared';
+import { decimalAMinimo, desdeMinimo, dividirRedondeando, sumarMinimos } from '../config/money.js';
 
 export class ReportesRepository {
   public async getMetricasResumen() {
@@ -17,7 +18,8 @@ export class ReportesRepository {
     });
 
     const totalVentasHoy = ventasHoy.length;
-    const ingresosHoy = ventasHoy.reduce((acc, v) => acc + Number(v.total), 0);
+    // F7: sumas en centavos enteros
+    const ingresosHoy = sumarMinimos(ventasHoy.map((v) => decimalAMinimo(v.total, 'USD')));
 
     // Ventas del mes
     const ventasMes = await prisma.venta.findMany({
@@ -29,8 +31,9 @@ export class ReportesRepository {
     });
 
     const totalVentasMes = ventasMes.length;
-    const ingresosMes = ventasMes.reduce((acc, v) => acc + Number(v.total), 0);
-    const ticketPromedio = totalVentasMes > 0 ? ingresosMes / totalVentasMes : 0;
+    const ingresosMes = sumarMinimos(ventasMes.map((v) => decimalAMinimo(v.total, 'USD')));
+    const ticketPromedio =
+      totalVentasMes > 0 ? Number(dividirRedondeando(BigInt(ingresosMes), BigInt(totalVentasMes))) : 0;
 
     // Productos con stock crítico
     const productos = await prisma.producto.findMany({
@@ -44,10 +47,10 @@ export class ReportesRepository {
 
     return {
       ventasHoy: totalVentasHoy,
-      ingresosHoy: Math.round(ingresosHoy * 100) / 100,
+      ingresosHoy: desdeMinimo(ingresosHoy, 'USD'),
       ventasMes: totalVentasMes,
-      ingresosMes: Math.round(ingresosMes * 100) / 100,
-      ticketPromedio: Math.round(ticketPromedio * 100) / 100,
+      ingresosMes: desdeMinimo(ingresosMes, 'USD'),
+      ticketPromedio: desdeMinimo(ticketPromedio, 'USD'),
       productosCriticos,
       totalClientes,
     };
@@ -89,14 +92,14 @@ export class ReportesRepository {
       }
 
       agrupado[fechaKey].totalVentas += 1;
-      agrupado[fechaKey].montoTotal += Number(v.total);
+      agrupado[fechaKey].montoTotal += decimalAMinimo(v.total, 'USD'); // centavos
       const articulosEnVenta = v.detalles.reduce((sum, d) => sum + d.cantidad, 0);
       agrupado[fechaKey].totalArticulos += articulosEnVenta;
     }
 
     return Object.values(agrupado).map((item) => ({
       ...item,
-      montoTotal: Math.round(item.montoTotal * 100) / 100,
+      montoTotal: desdeMinimo(item.montoTotal, 'USD'),
     }));
   }
 
@@ -145,7 +148,7 @@ export class ReportesRepository {
       }
 
       item.cantidadVendida += d.cantidad;
-      item.totalGenerado += Number(d.subtotalLinea);
+      item.totalGenerado += decimalAMinimo(d.subtotalLinea, 'USD'); // centavos
     }
 
     return Object.values(mapaProductos)
@@ -153,7 +156,7 @@ export class ReportesRepository {
       .slice(0, limite)
       .map((p) => ({
         ...p,
-        totalGenerado: Math.round(p.totalGenerado * 100) / 100,
+        totalGenerado: desdeMinimo(p.totalGenerado, 'USD'),
       }));
   }
 

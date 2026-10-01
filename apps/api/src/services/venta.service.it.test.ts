@@ -75,7 +75,7 @@ describe('VentaService (integración)', () => {
         },
         cajero()
       )
-    ).rejects.toThrow('Monto pagado insuficiente');
+    ).rejects.toThrow('Monto pagado insuficiente. Total requerido: $116.00, Pagado: $50.00');
   });
 
   it('rechaza stock insuficiente sin dejar rastro (rollback completo)', async () => {

@@ -276,8 +276,8 @@ export class VentaService {
     const pagadoUsd = sumarMinimos(lineas.map((l) => l.recibidoUsd));
     if (pagadoUsd < totalCentavos - TOLERANCIA_PAGO_CENTAVOS_USD) {
       throw new Error(
-        `Monto pagado insuficiente. Total requerido: ${desdeMinimo(totalCentavos, 'USD').toFixed(2)}, ` +
-          `Pagado: ${desdeMinimo(pagadoUsd, 'USD').toFixed(2)}`
+        `Monto pagado insuficiente. Total requerido: $${desdeMinimo(totalCentavos, 'USD').toFixed(2)}, ` +
+          `Pagado: $${desdeMinimo(pagadoUsd, 'USD').toFixed(2)}`
       );
     }
 
