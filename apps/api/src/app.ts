@@ -1,8 +1,9 @@
 import express, { type Application, type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import type { ApiResponse } from '@ferreteria/shared';
 import routes from './routes/index.js';
-import { errorHandler } from './middlewares/errorHandler.middleware.js';
+import { errorHandler, requestId, sanitizeServerErrors } from './middlewares/errorHandler.middleware.js';
 
 export interface AppOptions {
   /** Orígenes permitidos por CORS (lista blanca exacta). */
@@ -10,6 +11,13 @@ export interface AppOptions {
 }
 
 const DEFAULT_CORS_ORIGINS = ['http://localhost:5173'];
+
+/**
+ * Límite explícito del body JSON. Las imágenes de producto viajan como data URL
+ * base64 dentro del JSON (≈ +33 % sobre el archivo): 8 MB admite fotos de hasta ~5,5 MB.
+ * Por encima se responde 413. Ver docs/DEUDA-TECNICA.md (pasar imágenes a disco).
+ */
+export const JSON_BODY_LIMIT = '8mb';
 
 /** Convierte `CORS_ORIGIN` (separado por comas) en lista blanca. */
 export function parseCorsOrigins(raw: string | undefined): string[] {
@@ -26,6 +34,11 @@ export function createApp(
   const app = express();
   const allowedOrigins = new Set(options.corsOrigins);
 
+  app.disable('x-powered-by');
+  app.use(requestId);
+  app.use(sanitizeServerErrors);
+  app.use(helmet());
+
   // Rechazar explícitamente cualquier origen de navegador fuera de la lista blanca.
   // Las peticiones sin cabecera Origin (curl, servidor a servidor, mismo origen) no se ven afectadas.
   app.use((req: Request, res: Response<ApiResponse>, next: NextFunction) => {
@@ -41,8 +54,8 @@ export function createApp(
     origin: [...allowedOrigins],
     credentials: true,
   }));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: JSON_BODY_LIMIT }));
+  app.use(express.urlencoded({ extended: true, limit: JSON_BODY_LIMIT }));
 
   // Rutas de la API
   app.use('/api', routes);
