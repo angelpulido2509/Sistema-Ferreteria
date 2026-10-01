@@ -396,3 +396,6 @@ export interface BackupDTO {
   /** arranque | diario | cierre-turno | manual */
   motivo: string;
 }
+
+// Aritmética monetaria exacta (F7)
+export * from './money.js';
