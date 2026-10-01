@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { Prisma } from '@prisma/client-local';
 import { RolUsuario, MetodoPago, Moneda } from '@ferreteria/shared';
 import { prepararBdPrueba } from '../test/sqliteTestDb.js';
+
+vi.mock('./backup.service.js', () => ({ backupService: { crearBackupSeguro: vi.fn().mockResolvedValue(null) } }));
 
 const bd = await prepararBdPrueba();
 const { prisma } = await import('../lib/prisma.js');
@@ -100,5 +102,13 @@ describe('F3 — vuelto auditable y esperado de caja', () => {
     const venta = await vender15([zelle(3.33), efectivoCop(50_000)]);
     const suma = venta.pagos!.reduce((s, p) => s + Math.round(p.montoUsd * 100), 0);
     expect(suma).toBe(1500);
+  });
+
+  it('el Z guarda y expone el vuelto entregado por moneda', async () => {
+    const r = await cajaService.cerrarTurno(cajero(), { turnoCajaId: turnoId, conteoFisicoUsd: 0, conteoFisicoCop: 0 });
+    const z = await cajaService.getTurnoById(turnoId);
+    expect(z.vueltoUsd).toBeCloseTo(r.vueltoEntregado.usd, 10);
+    expect(z.vueltoCop).toBe(r.vueltoEntregado.cop);
+    expect(z.vueltoUsd).toBeGreaterThan(0);
   });
 });
