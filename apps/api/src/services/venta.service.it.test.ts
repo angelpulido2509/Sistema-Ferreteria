@@ -120,7 +120,7 @@ describe('VentaService (integración)', () => {
     );
     const stockTrasVenta = (await prisma.producto.findUniqueOrThrow({ where: { id: d.martilloId } })).stockActual;
 
-    const anulada = await ventaService.anularVenta(venta.id, d.adminId, 'Cliente canceló el pedido');
+    const anulada = await ventaService.anularVenta(venta.id, { id: d.adminId, rol: RolUsuario.ADMIN }, 'Cliente canceló el pedido');
     expect(anulada.estado).toBe(EstadoVenta.ANULADA);
     expect((await prisma.producto.findUniqueOrThrow({ where: { id: d.martilloId } })).stockActual).toBe(stockTrasVenta + 3);
     const entrada = await prisma.movimientoInventario.findFirst({ where: { tipo: 'ENTRADA', motivo: { startsWith: `Anulación Venta #${venta.id}` } } });
@@ -128,7 +128,7 @@ describe('VentaService (integración)', () => {
   });
 
   it('rechaza la anulación sin motivo', async () => {
-    await expect(ventaService.anularVenta('x', d.adminId, '')).rejects.toThrow(
+    await expect(ventaService.anularVenta('x', { id: d.adminId, rol: RolUsuario.ADMIN }, '')).rejects.toThrow(
       'El motivo de anulación es obligatorio para efectos de auditoría'
     );
   });

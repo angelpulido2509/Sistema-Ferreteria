@@ -597,6 +597,14 @@ export const VentasHistorialView: React.FC<VentasHistorialViewProps> = ({
 
               {/* Cuerpo del Recibo */}
               <div className="p-space-lg bg-surface-container-lowest flex flex-col gap-space-md">
+                {/* Auditoría de la anulación (F5) */}
+                {activeVenta.estado === EstadoVenta.ANULADA && activeVenta.motivoAnulacion && (
+                  <div className="p-space-sm rounded border border-error/30 bg-error-container text-error text-xs">
+                    <span className="font-bold">Anulada</span>
+                    {activeVenta.fechaAnulacion && ` el ${new Date(activeVenta.fechaAnulacion).toLocaleString('es-VE')}`}
+                    {`. Motivo: ${activeVenta.motivoAnulacion}`}
+                  </div>
+                )}
                 {/* Datos del Cliente */}
                 <div className="bg-surface-container-low p-space-md rounded flex flex-col gap-space-xs">
                   <span className="font-label-sm text-label-sm text-secondary uppercase font-bold">

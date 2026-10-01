@@ -253,10 +253,16 @@ export class CajaService {
 
     // F6: SOLO las ventas de este turno. El antiguo OR por rango de fechas mezclaba ventas
     // de otras cajas/turnos que se solapaban en el tiempo.
+    // F5: en un turno CERRADO también cuentan las ventas anuladas DESPUÉS del cierre (estaban
+    // completadas cuando se emitió el Z): así el Z es reproducible y su ajuste vive en otro turno.
+    const anuladasTrasCierre =
+      turno.estado === EstadoTurnoCaja.CERRADO && turno.fechaCierre
+        ? [{ estado: 'ANULADA' as const, fechaAnulacion: { gt: turno.fechaCierre } }]
+        : [];
     const ventasTurno = await db.venta.findMany({
       where: {
         turnoCajaId: turno.id,
-        estado: 'COMPLETADA',
+        OR: [{ estado: 'COMPLETADA' as const }, ...anuladasTrasCierre],
       },
       include: {
         pagos: true,

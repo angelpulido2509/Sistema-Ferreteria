@@ -3,6 +3,9 @@ import { Prisma } from '@prisma/client-local';
 import {
   EstadoVenta,
   EstadoTurnoCaja,
+  TipoMovimientoCaja,
+  RolUsuario,
+  METODOS_EFECTIVO,
   TipoMovimientoInventario,
   Moneda,
   MetodoPago,
@@ -221,13 +224,19 @@ export class VentaRepository {
     });
   }
 
-  public async anularVentaTransaccional(ventaId: string, usuarioId: string, motivo: string) {
+  /**
+   * Anula una venta (F5): revierte stock y kárdex, guarda motivo/autor/fecha en la venta y deja
+   * un AuditoriaEvento. Si la venta pertenece a un turno que ya no está ABIERTO (o no tiene turno):
+   *  - solo ADMIN puede anularla;
+   *  - el efectivo neto devuelto se registra como EGRESO de ajuste en el turno vigente (el del
+   *    usuario que anula o, si no tiene, el abierto en la misma caja); el Z cerrado no se toca.
+   * Los pagos electrónicos no generan ajuste (no salen de la gaveta).
+   */
+  public async anularVentaTransaccional(ventaId: string, usuario: { id: string; rol: RolUsuario }, motivo: string) {
     return transaccionEscritura(async (tx) => {
       const venta = await tx.venta.findUnique({
         where: { id: ventaId },
-        include: {
-          detalles: true,
-        },
+        include: { detalles: true, pagos: true, turnoCaja: true },
       });
 
       if (!venta) {
@@ -235,36 +244,68 @@ export class VentaRepository {
       }
 
       if (venta.estado === EstadoVenta.ANULADA) {
-        throw new Error(`La venta #${ventaId} ya ha sido anulada previamente`);
+        throw new Error(`La venta ${venta.numero ?? '#' + ventaId} ya ha sido anulada previamente`);
       }
 
-      // 1. Cambiar estado a ANULADA
+      const turnoCerrado = !venta.turnoCaja || venta.turnoCaja.estado !== EstadoTurnoCaja.ABIERTO;
+      if (turnoCerrado && usuario.rol !== RolUsuario.ADMIN) {
+        throw new Error('Solo un administrador puede anular ventas de un turno cerrado.');
+      }
+
+      // Efectivo neto a devolver, por moneda (solo pagos en efectivo)
+      const efectivo = new Map<Moneda, Prisma.Decimal>();
+      for (const p of venta.pagos) {
+        if (METODOS_EFECTIVO.includes(p.metodoPago as MetodoPago) && p.montoMoneda.gt(0)) {
+          const moneda = p.moneda as Moneda;
+          efectivo.set(moneda, (efectivo.get(moneda) ?? new Prisma.Decimal(0)).plus(p.montoMoneda));
+        }
+      }
+
+      const ajustes: Array<{ turnoCajaId: string; moneda: Moneda; monto: number }> = [];
+      if (turnoCerrado && efectivo.size > 0) {
+        const vigente =
+          (await tx.turnoCaja.findFirst({ where: { usuarioAperturaId: usuario.id, estado: EstadoTurnoCaja.ABIERTO } })) ??
+          (venta.turnoCaja
+            ? await tx.turnoCaja.findFirst({ where: { cajaNumero: venta.turnoCaja.cajaNumero, estado: EstadoTurnoCaja.ABIERTO } })
+            : null);
+        if (!vigente) {
+          throw new Error(
+            'La venta pertenece a un turno cerrado y se pagó en efectivo: Abra un turno de caja para registrar el ajuste de la devolución.'
+          );
+        }
+        for (const [moneda, monto] of efectivo) {
+          await tx.movimientoCaja.create({
+            data: {
+              turnoCajaId: vigente.id,
+              usuarioId: usuario.id,
+              tipo: TipoMovimientoCaja.EGRESO,
+              monto,
+              moneda,
+              motivo: `Ajuste por anulación de ${venta.numero ?? 'venta #' + venta.id}: ${motivo}`,
+              ventaId: venta.id,
+            },
+          });
+          ajustes.push({ turnoCajaId: vigente.id, moneda, monto: monto.toNumber() });
+        }
+      }
+
+      // 1. Estado y auditoría en la propia venta
       const ventaAnulada = await tx.venta.update({
         where: { id: ventaId },
         data: {
           estado: EstadoVenta.ANULADA,
+          motivoAnulacion: motivo,
+          anuladaPorId: usuario.id,
+          fechaAnulacion: new Date(),
         },
-        include: {
-          cliente: true,
-          usuario: {
-            select: { id: true, nombre: true, email: true, rol: true },
-          },
-          detalles: {
-            include: {
-              producto: true,
-            },
-          },
-          pagos: true,
-        },
+        include: INCLUDE_VENTA,
       });
 
       // 2. Revertir el stock y registrar MovimientoInventario tipo ENTRADA
       for (const detalle of venta.detalles) {
         await tx.producto.update({
           where: { id: detalle.productoId },
-          data: {
-            stockActual: { increment: detalle.cantidad },
-          },
+          data: { stockActual: { increment: detalle.cantidad } },
         });
 
         await tx.movimientoInventario.create({
@@ -272,13 +313,25 @@ export class VentaRepository {
             productoId: detalle.productoId,
             tipo: TipoMovimientoInventario.ENTRADA,
             cantidad: detalle.cantidad,
-            motivo: `Anulación Venta #${ventaId}: ${motivo.trim()}`,
-            usuarioId: usuarioId,
+            motivo: `Anulación Venta #${ventaId}: ${motivo}`,
+            usuarioId: usuario.id,
           },
         });
       }
 
-      // 3. Registrar anulación en SyncQueue
+      // 3. Evento de auditoría consultable
+      await tx.auditoriaEvento.create({
+        data: {
+          entidad: 'Venta',
+          entidadId: ventaId,
+          accion: 'ANULAR',
+          usuarioId: usuario.id,
+          motivo,
+          detalle: JSON.stringify({ numero: venta.numero, turnoCajaId: venta.turnoCajaId, turnoCerrado, ajustes }),
+        },
+      });
+
+      // 4. Registrar anulación en SyncQueue
       await registrarSync('Venta', ventaId, OperacionSync.ACTUALIZAR, ventaAnulada as unknown as Record<string, unknown>, tx);
 
       return ventaAnulada;

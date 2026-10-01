@@ -107,7 +107,7 @@ export class VentaController {
       }
 
       const { motivo } = req.body;
-      const venta = await ventaService.anularVenta(id, req.user.id, motivo);
+      const venta = await ventaService.anularVenta(id, { id: req.user.id, rol: req.user.rol }, motivo);
       res.status(200).json({
         success: true,
         data: venta,

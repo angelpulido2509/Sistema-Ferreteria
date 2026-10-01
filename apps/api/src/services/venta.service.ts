@@ -435,12 +435,13 @@ export class VentaService {
     return this.mapToDTO(venta);
   }
 
-  public async anularVenta(ventaId: string, usuarioId: string, motivo: string): Promise<VentaDTO> {
+  /** Anula una venta con auditoría (F5). Ver VentaRepository.anularVentaTransaccional. */
+  public async anularVenta(ventaId: string, usuario: UsuarioOperacion, motivo: string): Promise<VentaDTO> {
     if (!motivo || !motivo.trim()) {
       throw new Error('El motivo de anulación es obligatorio para efectos de auditoría');
     }
 
-    const ventaAnulada = await this.repo.anularVentaTransaccional(ventaId, usuarioId, motivo.trim());
+    const ventaAnulada = await this.repo.anularVentaTransaccional(ventaId, usuario, motivo.trim());
     return this.mapToDTO(ventaAnulada);
   }
 
