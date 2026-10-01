@@ -1,6 +1,7 @@
 import { prisma } from '../lib/prisma.js';
 import { Prisma } from '@prisma/client-local';
 import { registrarSync } from '../lib/syncQueue.js';
+import { transaccionEscritura } from '../lib/transaccion.js';
 import { OperacionSync } from '@ferreteria/shared';
 
 export interface ProductoFilters {
@@ -167,7 +168,7 @@ export class ProductoRepository {
     motivo: string;
     usuarioId: string;
   }) {
-    return prisma.$transaction(async tx => {
+    return transaccionEscritura(async tx => {
       const producto = await tx.producto.update({
         where: { id: data.productoId },
         data: { stockActual: data.nuevoStock },

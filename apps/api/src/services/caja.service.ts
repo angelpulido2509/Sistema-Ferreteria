@@ -1,4 +1,6 @@
 import { prisma } from '../lib/prisma.js';
+import type { Prisma } from '@prisma/client-local';
+import { transaccionEscritura } from '../lib/transaccion.js';
 import { backupService } from './backup.service.js';
 import {
   EstadoTurnoCaja,
@@ -13,8 +15,17 @@ import {
   type ResumenArqueoDTO,
   MONEDA_POR_METODO,
   METODOS_EFECTIVO,
+  RolUsuario,
 } from '@ferreteria/shared';
 import { aMinimo, decimalAMinimo, desdeMinimo, minimoADecimal, type CodigoMoneda } from '../config/money.js';
+
+/** Usuario que opera la caja (rol vigente en BD, de req.user). */
+export interface UsuarioCaja {
+  id: string;
+  rol: RolUsuario;
+}
+
+type ClienteBd = Prisma.TransactionClient;
 
 export class CajaService {
   /**
@@ -92,10 +103,12 @@ export class CajaService {
   /**
    * Obtiene el turno activo actual
    */
-  public async getTurnoActivo(_usuarioId?: string): Promise<TurnoCajaDTO | null> {
+  public async getTurnoActivo(usuarioId: string): Promise<TurnoCajaDTO | null> {
+    // F4: cada cajero tiene su propio turno (ya no hay un findFirst global)
     const turno = await prisma.turnoCaja.findFirst({
       where: {
         estado: EstadoTurnoCaja.ABIERTO,
+        usuarioAperturaId: usuarioId,
       },
       include: {
         usuarioApertura: true,
@@ -115,22 +128,25 @@ export class CajaService {
    * Abre un nuevo turno de caja
    */
   public async abrirTurno(usuarioId: string, data: AbrirCajaDTO): Promise<TurnoCajaDTO> {
-    // Validar que no haya un turno abierto actualmente
-    const abierto = await prisma.turnoCaja.findFirst({
-      where: { estado: EstadoTurnoCaja.ABIERTO },
-    });
-
-    if (abierto) {
-      throw new Error(`Ya existe un turno de caja abierto (#${abierto.cajaNumero}). Debes cerrarlo antes de iniciar otro.`);
-    }
-
     if (data.montoInicialUsd < 0 || data.montoInicialCop < 0 || (data.montoInicialVes ?? 0) < 0) {
       throw new Error('Los fondos iniciales de caja no pueden ser negativos.');
     }
 
-    const turno = await prisma.turnoCaja.create({
+    const cajaNumero = data.cajaNumero?.trim() || 'Caja 1';
+    const turno = await transaccionEscritura(async (tx) => {
+      // F4: un turno abierto por cajero y uno por caja
+      const abiertos = { in: [EstadoTurnoCaja.ABIERTO, EstadoTurnoCaja.CERRANDO] };
+      const propio = await tx.turnoCaja.findFirst({ where: { usuarioAperturaId: usuarioId, estado: abiertos } });
+      if (propio) {
+        throw new Error(`Ya tiene un turno abierto en ${propio.cajaNumero}. Ciérrelo antes de iniciar otro.`);
+      }
+      const enCaja = await tx.turnoCaja.findFirst({ where: { cajaNumero, estado: abiertos } });
+      if (enCaja) {
+        throw new Error(`La ${cajaNumero} ya tiene un turno abierto por otro usuario.`);
+      }
+      return tx.turnoCaja.create({
       data: {
-        cajaNumero: data.cajaNumero?.trim() || 'Caja 1',
+        cajaNumero,
         usuarioAperturaId: usuarioId,
         estado: EstadoTurnoCaja.ABIERTO,
         montoInicialUsd: minimoADecimal(aMinimo(data.montoInicialUsd || 0, 'USD'), 'USD'),
@@ -142,6 +158,7 @@ export class CajaService {
         usuarioCierre: true,
         movimientos: true,
       },
+      });
     });
 
     return this.mapToDTO(turno);
@@ -150,7 +167,8 @@ export class CajaService {
   /**
    * Registra un ingreso o egreso manual de caja menor
    */
-  public async registrarMovimiento(usuarioId: string, data: CrearMovimientoCajaDTO): Promise<MovimientoCajaDTO> {
+  public async registrarMovimiento(usuario: UsuarioCaja, data: CrearMovimientoCajaDTO): Promise<MovimientoCajaDTO> {
+    const usuarioId = usuario.id;
     const turno = await prisma.turnoCaja.findUnique({
       where: { id: data.turnoCajaId },
     });
@@ -161,6 +179,10 @@ export class CajaService {
 
     if (turno.estado !== EstadoTurnoCaja.ABIERTO) {
       throw new Error('El turno de caja ya se encuentra cerrado. No se admiten nuevos movimientos.');
+    }
+
+    if (usuario.rol !== RolUsuario.ADMIN && turno.usuarioAperturaId !== usuario.id) {
+      throw new Error('Solo quien abrió el turno o un administrador puede registrar movimientos en él.');
     }
 
     if (data.monto <= 0) {
@@ -212,8 +234,8 @@ export class CajaService {
    * pagos en efectivo + ingresos − egresos. Zelle, Nequi, pago móvil y punto de venta no entran al
    * cuadre físico. Todo se suma en unidades mínimas enteras (money.ts).
    */
-  public async calcularResumenTurno(turnoCajaId: string): Promise<ResumenArqueoDTO> {
-    const turno = await prisma.turnoCaja.findUnique({
+  public async calcularResumenTurno(turnoCajaId: string, db: ClienteBd = prisma): Promise<ResumenArqueoDTO> {
+    const turno = await db.turnoCaja.findUnique({
       where: { id: turnoCajaId },
       include: {
         usuarioApertura: true,
@@ -229,19 +251,11 @@ export class CajaService {
       throw new Error('Turno de caja no encontrado');
     }
 
-    // Obtener ventas asociadas al turno (o completadas dentro del intervalo de tiempo del turno)
-    const fechaFin = turno.fechaCierre || new Date();
-    const ventasTurno = await prisma.venta.findMany({
+    // F6: SOLO las ventas de este turno. El antiguo OR por rango de fechas mezclaba ventas
+    // de otras cajas/turnos que se solapaban en el tiempo.
+    const ventasTurno = await db.venta.findMany({
       where: {
-        OR: [
-          { turnoCajaId: turno.id },
-          {
-            fecha: {
-              gte: turno.fechaApertura,
-              lte: fechaFin,
-            },
-          },
-        ],
+        turnoCajaId: turno.id,
         estado: 'COMPLETADA',
       },
       include: {
@@ -374,27 +388,52 @@ export class CajaService {
   }
 
   /**
-   * Cierra definitivamente el turno (Reporte Z) tras conteo ciego
+   * Cierra definitivamente el turno (Reporte Z) tras conteo ciego. Atómico (F4):
+   *  1. La primera sentencia marca el turno CERRANDO solo si sigue ABIERTO (y es propio, salvo ADMIN).
+   *     Esa escritura toma el bloqueo de SQLite: las ventas en curso terminan antes y las nuevas
+   *     esperan y luego fallan porque el turno ya no está ABIERTO. Un segundo cierre no encuentra
+   *     el turno ABIERTO y falla.
+   *  2. El resumen se calcula dentro de la misma transacción y se guarda el Z como CERRADO.
    */
-  public async cerrarTurno(usuarioId: string, data: CerrarCajaDTO): Promise<ResumenArqueoDTO> {
-    const turno = await prisma.turnoCaja.findUnique({
-      where: { id: data.turnoCajaId },
-    });
-
-    if (!turno) {
-      throw new Error('Turno de caja no encontrado');
-    }
-
-    if (turno.estado === EstadoTurnoCaja.CERRADO) {
-      throw new Error('Este turno de caja ya fue cerrado previamente.');
-    }
-
+  public async cerrarTurno(usuario: UsuarioCaja, data: CerrarCajaDTO): Promise<ResumenArqueoDTO> {
     if (data.conteoFisicoUsd < 0 || data.conteoFisicoCop < 0 || (data.conteoFisicoVes ?? 0) < 0) {
       throw new Error('El conteo físico de billetes no puede ser negativo.');
     }
 
-    // Calcular resumen previo al cierre
-    const resumen = await this.calcularResumenTurno(data.turnoCajaId);
+    await transaccionEscritura(async (tx) => {
+      const bloqueo = await tx.turnoCaja.updateMany({
+        where: {
+          id: data.turnoCajaId,
+          estado: EstadoTurnoCaja.ABIERTO,
+          ...(usuario.rol === RolUsuario.ADMIN ? {} : { usuarioAperturaId: usuario.id }),
+        },
+        data: { estado: EstadoTurnoCaja.CERRANDO },
+      });
+
+      if (bloqueo.count === 0) {
+        const turno = await tx.turnoCaja.findUnique({ where: { id: data.turnoCajaId } });
+        if (!turno) {
+          throw new Error('Turno de caja no encontrado');
+        }
+        if (turno.estado !== EstadoTurnoCaja.ABIERTO) {
+          throw new Error('Este turno de caja ya fue cerrado o se está cerrando.');
+        }
+        throw new Error('Solo quien abrió el turno o un administrador puede cerrarlo.');
+      }
+
+      await this.guardarCierre(tx, usuario.id, data);
+    });
+
+    // Respaldo al cerrar turno (D1): en segundo plano, nunca bloquea ni hace fallar el cierre.
+    void backupService.crearBackupSeguro('cierre-turno');
+
+    // Retornar resumen completo actualizado
+    return await this.calcularResumenTurno(data.turnoCajaId);
+  }
+
+  /** Calcula el resumen dentro de la transacción del cierre y guarda el Reporte Z. */
+  private async guardarCierre(tx: ClienteBd, usuarioId: string, data: CerrarCajaDTO): Promise<void> {
+    const resumen = await this.calcularResumenTurno(data.turnoCajaId, tx);
 
     const conteo: Record<CodigoMoneda, number> = {
       USD: aMinimo(data.conteoFisicoUsd, 'USD'),
@@ -406,7 +445,7 @@ export class CajaService {
     const ves = (v: number) => minimoADecimal(aMinimo(v, 'VES'), 'VES');
     const { ventasPorMetodo: vpm, movimientosManuales: mm, esperadoEnCaja: esp, vueltoEntregado: vu } = resumen;
 
-    await prisma.turnoCaja.update({
+    await tx.turnoCaja.update({
       where: { id: data.turnoCajaId },
       data: {
         estado: EstadoTurnoCaja.CERRADO,
@@ -436,12 +475,6 @@ export class CajaService {
         observaciones: data.observaciones?.trim() || null,
       },
     });
-
-    // Respaldo al cerrar turno (D1): en segundo plano, nunca bloquea ni hace fallar el cierre.
-    void backupService.crearBackupSeguro('cierre-turno');
-
-    // Retornar resumen completo actualizado
-    return await this.calcularResumenTurno(data.turnoCajaId);
   }
 
   /**

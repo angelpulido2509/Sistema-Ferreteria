@@ -58,6 +58,8 @@ export enum TipoDocumento {
 // Enums de Control de Caja y Arqueo (Guasdualito)
 export enum EstadoTurnoCaja {
   ABIERTO = 'ABIERTO',
+  /** Transitorio durante el cierre atómico (F4) */
+  CERRANDO = 'CERRANDO',
   CERRADO = 'CERRADO',
 }
 

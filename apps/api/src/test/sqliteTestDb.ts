@@ -7,12 +7,17 @@ import { rutaPlantilla } from './sqliteTemplate.js';
  * Prepara una BD SQLite temporal (copia de la plantilla) y apunta DATABASE_URL a ella.
  * Debe llamarse ANTES de importar dinámicamente cualquier módulo que use lib/prisma.ts.
  */
-export async function prepararBdPrueba(): Promise<{ url: string; limpiar: () => Promise<void> }> {
+export async function prepararBdPrueba(
+  opciones: { poolReal?: boolean } = {}
+): Promise<{ url: string; limpiar: () => Promise<void> }> {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ferrepro-it-'));
   const archivo = path.join(dir, 'test.db');
   await fs.copyFile(rutaPlantilla(), archivo);
-  // connection_limit=1 + busy timeout: las transacciones se serializan como en la app real (SQLite).
-  const url = `file:${archivo.replace(/\\/g, '/')}?connection_limit=1&socket_timeout=20`;
+  // Por defecto, una conexión: las transacciones se encolan en el pool de Prisma.
+  // poolReal: pool por defecto de Prisma; la concurrencia la resuelven los bloqueos de SQLite
+  // (socket_timeout = espera máxima por un bloqueo, en segundos), como en la app instalada.
+  const base = `file:${archivo.replace(/\\/g, '/')}`;
+  const url = opciones.poolReal ? `${base}?socket_timeout=20` : `${base}?connection_limit=1&socket_timeout=20`;
   process.env.DATABASE_URL = url;
   // lib/prisma.ts cachea el cliente en globalThis fuera de producción: forzar uno nuevo.
   delete (globalThis as { prisma?: unknown }).prisma;

@@ -13,8 +13,7 @@ export class CajaController {
     res: Response<ApiResponse<TurnoCajaDTO | null>>
   ): Promise<void> {
     try {
-      const usuarioId = (req as any).user?.id;
-      const turno = await cajaService.getTurnoActivo(usuarioId);
+      const turno = await cajaService.getTurnoActivo(req.user!.id);
       res.status(200).json({
         success: true,
         data: turno,
@@ -34,8 +33,7 @@ export class CajaController {
     res: Response<ApiResponse<TurnoCajaDTO>>
   ): Promise<void> {
     try {
-      const usuarioId = (req as any).user?.id || '1';
-      const turno = await cajaService.abrirTurno(usuarioId, req.body);
+      const turno = await cajaService.abrirTurno(req.user!.id, req.body);
       res.status(201).json({
         success: true,
         data: turno,
@@ -55,8 +53,7 @@ export class CajaController {
     res: Response<ApiResponse<MovimientoCajaDTO>>
   ): Promise<void> {
     try {
-      const usuarioId = (req as any).user?.id || '1';
-      const mov = await cajaService.registrarMovimiento(usuarioId, req.body);
+      const mov = await cajaService.registrarMovimiento({ id: req.user!.id, rol: req.user!.rol }, req.body);
       res.status(201).json({
         success: true,
         data: mov,
@@ -106,8 +103,7 @@ export class CajaController {
     res: Response<ApiResponse<ResumenArqueoDTO>>
   ): Promise<void> {
     try {
-      const usuarioId = (req as any).user?.id || '1';
-      const resumen = await cajaService.cerrarTurno(usuarioId, req.body);
+      const resumen = await cajaService.cerrarTurno({ id: req.user!.id, rol: req.user!.rol }, req.body);
       res.status(200).json({
         success: true,
         data: resumen,

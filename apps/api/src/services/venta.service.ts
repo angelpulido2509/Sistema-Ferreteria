@@ -9,7 +9,6 @@ import {
   configuracionRepository as defaultConfigRepo,
 } from '../repositories/configuracion.repository.js';
 import { configuracionService } from './configuracion.service.js';
-import { prisma } from '../lib/prisma.js';
 import {
   VentaDTO,
   EstadoVenta,
@@ -417,12 +416,6 @@ export class VentaService {
 
     const { pagos, vueltoMoneda } = this.procesarPagos(input, config, totales.totalCentavos);
 
-    // Asociar al turno de caja abierto actualmente si existe (F4 lo vuelve obligatorio)
-    const turnoActivo = await prisma.turnoCaja.findFirst({
-      where: { estado: 'ABIERTO' },
-      orderBy: { fechaApertura: 'desc' },
-    });
-
     const total = minimoADecimal(totales.totalCentavos, 'USD');
     const venta = await this.repo.crearVentaTransaccional({
       clienteId: input.clienteId,
@@ -435,7 +428,6 @@ export class VentaService {
       descuentoAplicadoPorId: totales.descuentoCentavos > 0 ? usuario.id : null,
       monedaFuncional: input.monedaFuncional ?? Moneda.USD,
       vueltoMoneda,
-      turnoCajaId: turnoActivo?.id || null,
       lineas,
       pagos,
     });

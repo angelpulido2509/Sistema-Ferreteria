@@ -1,7 +1,15 @@
 import { prisma } from '../lib/prisma.js';
 import { Prisma } from '@prisma/client-local';
-import { EstadoVenta, TipoMovimientoInventario, Moneda, MetodoPago, OperacionSync } from '@ferreteria/shared';
+import {
+  EstadoVenta,
+  EstadoTurnoCaja,
+  TipoMovimientoInventario,
+  Moneda,
+  MetodoPago,
+  OperacionSync,
+} from '@ferreteria/shared';
 import { registrarSync } from '../lib/syncQueue.js';
+import { transaccionEscritura } from '../lib/transaccion.js';
 
 /** Línea ya calculada por el servicio (precio de BD, descuento e IVA por línea). */
 export interface LineaVentaData {
@@ -39,7 +47,6 @@ export interface CrearVentaData {
   monedaFuncional: Moneda;
   /** Moneda en que se entregó el vuelto (null si no hubo vuelto) */
   vueltoMoneda: Moneda | null;
-  turnoCajaId?: string | null;
   lineas: LineaVentaData[];
   pagos: PagoVentaData[];
 }
@@ -105,7 +112,22 @@ export class VentaRepository {
   }
 
   public async crearVentaTransaccional(data: CrearVentaData) {
-    return prisma.$transaction(async (tx) => {
+    return transaccionEscritura(async (tx) => {
+      // 0. Turno obligatorio (F4): el del propio vendedor, tomado DENTRO de la transacción.
+      //    La primera sentencia es una ESCRITURA condicional sobre el turno: en SQLite adquiere el
+      //    bloqueo de escritura de inmediato, así la venta y el cierre (que también empieza
+      //    escribiendo el turno) se serializan. Si el cierre ganó, el turno ya no está ABIERTO.
+      const bloqueo = await tx.turnoCaja.updateMany({
+        where: { usuarioAperturaId: data.usuarioId, estado: EstadoTurnoCaja.ABIERTO },
+        data: { updatedAt: new Date() },
+      });
+      const turno = bloqueo.count === 1
+        ? await tx.turnoCaja.findFirst({ where: { usuarioAperturaId: data.usuarioId, estado: EstadoTurnoCaja.ABIERTO } })
+        : null;
+      if (!turno) {
+        throw new Error('No tiene un turno de caja abierto (o se está cerrando). Abra un turno en Caja para poder vender.');
+      }
+
       // 1. Validar existencia, precio vigente y stock (sumando líneas repetidas del mismo producto)
       const cantidadPorProducto = new Map<string, number>();
       for (const linea of data.lineas) {
@@ -145,7 +167,7 @@ export class VentaRepository {
           monedaFuncional: data.monedaFuncional,
           vueltoMoneda: data.vueltoMoneda,
           estado: EstadoVenta.COMPLETADA,
-          turnoCajaId: data.turnoCajaId || null,
+          turnoCajaId: turno.id,
           detalles: {
             create: data.lineas.map((l) => ({
               producto: { connect: { id: l.productoId } },
@@ -200,7 +222,7 @@ export class VentaRepository {
   }
 
   public async anularVentaTransaccional(ventaId: string, usuarioId: string, motivo: string) {
-    return prisma.$transaction(async (tx: any) => {
+    return transaccionEscritura(async (tx) => {
       const venta = await tx.venta.findUnique({
         where: { id: ventaId },
         include: {
