@@ -1,0 +1,26 @@
+{
+  "name": "sistema-ferreteria-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.4.2",
+  "scripts": {
+    "dev:api": "pnpm --filter @ferreteria/api dev",
+    "dev:web": "pnpm --filter @ferreteria/web dev",
+    "dev": "pnpm --parallel --filter @ferreteria/api --filter @ferreteria/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "prisma:generate": "prisma generate --schema=prisma/schema.local.prisma && prisma generate --schema=prisma/schema.cloud.prisma",
+    "prisma:push:local": "prisma db push --schema=prisma/schema.local.prisma",
+    "tunnel": ".\\cloudflared.exe tunnel --url http://localhost:5173"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3",
+    "prisma": "^6.4.1",
+    "typescript": "^5.8.2"
+  }
+}

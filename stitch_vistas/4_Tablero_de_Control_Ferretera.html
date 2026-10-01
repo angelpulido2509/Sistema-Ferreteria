@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "secondary-container": "#dae2fd", "secondary-fixed": "#dae2fd", "surface-container-highest": "#d3e4fe", "surface-variant": "#d3e4fe", "on-error-container": "#93000a", "secondary-fixed-dim": "#bec6e0", "on-secondary-fixed-variant": "#3f465c", "background": "#f8f9ff", "surface-bright": "#f8f9ff", "on-primary-container": "#fffbff", "on-tertiary-fixed-variant": "#004b73", "on-error": "#ffffff", "error": "#ba1a1a", "on-tertiary-fixed": "#001d31", "primary-fixed-dim": "#ffb599", "on-background": "#0b1c30", "surface-tint": "#a73a00", "tertiary": "#006194", "inverse-primary": "#ffb599", "on-secondary": "#ffffff", "on-primary": "#ffffff", "on-primary-fixed-variant": "#7f2b00", "surface-container-lowest": "#ffffff", "on-surface": "#0b1c30", "primary-container": "#cc4900", "inverse-on-surface": "#eaf1ff", "surface-dim": "#cbdbf5", "on-secondary-container": "#5c647a", "outline": "#8e7166", "surface": "#f8f9ff", "surface-container": "#e5eeff", "outline-variant": "#e2bfb2", "on-tertiary-container": "#fdfcff", "tertiary-container": "#007bb9", "tertiary-fixed-dim": "#93ccff", "secondary": "#565e74", "error-container": "#ffdad6", "surface-container-low": "#eff4ff", "on-tertiary": "#ffffff", "on-surface-variant": "#5a4138", "on-secondary-fixed": "#131b2e", "tertiary-fixed": "#cce5ff", "primary-fixed": "#ffdbce", "on-primary-fixed": "#370e00", "inverse-surface": "#213145", "surface-container-high": "#dce9ff", "primary": "#a33900" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-2xl": "2rem", "gutter": "1rem", "space-2xs": "0.125rem", "space-xl": "1.5rem", "gutter-desktop": "1.5rem", "space-sm": "0.5rem", "margin-desktop": "1.5rem", "space-lg": "1rem", "space-xs": "0.25rem", "space-md": "0.75rem", "margin": "1rem" }, "fontFamily": { "label-sm": ["Inter"], "body-md": ["Inter"], "body-lg": ["Inter"], "display-lg": ["Inter"], "headline-sm": ["Inter"], "body-sm": ["Inter"], "label-lg": ["Inter"], "headline-lg-mobile": ["Inter"], "display-md": ["Inter"], "headline-lg": ["Inter"], "label-md": ["Inter"] }, "fontSize": { "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "letterSpacing": "0.05em", "fontWeight": "700" }], "body-md": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0em", "fontWeight": "400" }], "body-lg": ["1rem", { "lineHeight": "1.5rem", "letterSpacing": "0em", "fontWeight": "400" }], "display-lg": ["2.25rem", { "lineHeight": "2.75rem", "letterSpacing": "-0.025em", "fontWeight": "700" }], "headline-sm": ["1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-sm": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.01em", "fontWeight": "400" }], "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-lg-mobile": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "display-md": ["1.875rem", { "lineHeight": "2.25rem", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-lg": ["1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-md": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.025em", "fontWeight": "600" }] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-inverse-surface text-inverse-on-surface z-50 flex flex-col justify-between select-none shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="h-16 px-space-lg flex items-center gap-space-sm bg-inverse-surface"><img alt="FerrePro Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UBd0Zl-G8wrzdWDTZBf4n-YlI8KTI_lAx5CqKgfwRTDXiBKq-76KKlyW4Ch1Zt8969iRjrvAZq3gmYnBrMIMx1Jr_t53VOIRvyJbILnztEDxKN2A1P_UBRt3zUM7FCWjCuwJ6fTZ1Llk5srxV_tAh3_L-BDkG8pjExuNqbezNSpfG3p9nq6Sz1GJE8j2Ugd4ZZj-lWO6Dd92SyHMstbfUGU486gQvhkvNwEpdn-DbCk2HF2Hv0DG6oJzY"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-surface-container-lowest font-bold leading-none tracking-tight">FerrePro</span><span class="font-label-sm text-label-sm text-secondary-fixed-dim uppercase tracking-wider mt-space-2xs">Hardware ERP</span></div></div><div class="px-space-md py-space-sm"><div class="font-label-sm text-label-sm text-secondary-fixed-dim uppercase px-space-sm py-space-xs">Operaciones</div></div><nav class="flex flex-col gap-space-2xs px-space-md" data-active-classes="bg-primary text-on-primary font-label-lg rounded"><a aria-current="page" class="flex items-center justify-between px-space-md py-space-sm transition-colors bg-primary text-on-primary font-label-lg rounded" data-path="tablero" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-lg">dashboard</span><span class="font-body-md text-body-md">Tablero</span></div></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-inverse-on-surface hover:bg-surface-container-highest/20 hover:text-surface-container-lowest transition-colors" data-path="punto-de-venta" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-lg">point_of_sale</span><span class="font-body-md text-body-md">Punto de Venta</span></div><span class="font-label-sm text-label-sm bg-tertiary text-on-tertiary px-space-xs py-space-2xs rounded">Caja Activa</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-inverse-on-surface hover:bg-surface-container-highest/20 hover:text-surface-container-lowest transition-colors" data-path="inventario-y-productos" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-lg">inventory_2</span><span class="font-body-md text-body-md">Inventario</span></div><span class="font-label-sm text-label-sm bg-error text-on-error px-space-xs py-space-2xs rounded">14 bajo stock</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-inverse-on-surface hover:bg-surface-container-highest/20 hover:text-surface-container-lowest transition-colors" data-path="historial-de-ventas" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-lg">receipt_long</span><span class="font-body-md text-body-md">Ventas</span></div></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-inverse-on-surface hover:bg-surface-container-highest/20 hover:text-surface-container-lowest transition-colors" data-path="clientes-y-proveedores" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-lg">group</span><span class="font-body-md text-body-md">Contactos</span></div></a></nav></div><div class="p-space-md m-space-md rounded bg-surface-container-highest/10 flex flex-col gap-space-xs"><div class="flex items-center gap-space-xs"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary-fixed-dim"></span></span><span class="font-label-sm text-label-sm text-inverse-on-surface font-bold">DB PostgreSQL</span></div><span class="font-body-sm text-body-sm text-secondary-fixed-dim leading-snug">Sincronizado con Base de Datos Cloud en tiempo real</span></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl z-40 px-gutter-desktop shadow-[0_1px_8px_rgba(0,0,0,0.04)] flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-lg flex-1 max-w-xl"><div class="relative w-full"><span class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-secondary text-lg">search</span><input class="w-full pl-10 pr-space-md py-space-xs h-9 bg-surface-container-low text-on-surface font-body-sm text-body-sm rounded outline-none placeholder:text-secondary focus:bg-surface-container-lowest" placeholder="Buscar producto por SKU, código de barras o ticket..." type="text"/></div><div class="hidden xl:flex items-center gap-space-xs shrink-0 px-space-md py-space-xs bg-surface-container-low rounded"><span class="material-symbols-outlined text-secondary text-base">storefront</span><span class="font-label-md text-label-md text-on-surface">Caja Principal - Mostrador 01</span></div></div><div class="flex items-center gap-space-md shrink-0"><button class="flex items-center gap-space-xs px-space-md py-space-xs h-9 bg-primary text-on-primary rounded font-label-md text-label-md hover:bg-primary-container transition-colors" type="button"><span class="material-symbols-outlined text-base">add_shopping_cart</span><span>Nueva Venta</span><kbd class="hidden sm:inline font-label-sm text-label-sm bg-on-primary/20 px-space-2xs rounded ml-space-2xs">F2</kbd></button><div class="relative flex items-center"><button aria-label="Notificaciones" class="p-space-xs rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-xl">notifications</span><span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span></button></div><div class="flex items-center gap-space-md pl-space-md"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxZ96QjvspT8k-h3-ER9Kxzn_KFlb_3f9QwWORx8L3VZ4y7h01wETPKv0hyn6X-KNisItQJWWIOebBawgvwYHh2N0twfOlJ7DuIG8CBehySHXgkHEw5_fFosPy7uvu-8L1wTkCUTLcFtmoM5yoqvi76Ivqrf44qEtFWXo3X_Eag6j0c9v2coaxhM_kgde89BKSuuobGzmwI_J1QE6GvHQ2VD1uFLOSPgHo-bitu32YIrGOmbfov_WJ"/><div class="hidden md:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface leading-tight">Carlos Méndez</span><span class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Gerente / Admin</span></div></div></div></header><main class="relative pt-16 bg-background w-full px-gutter-desktop py-space-lg min-h-screen"><div class="flex flex-col w-full gap-space-lg">
+<!-- Top Operational Control Bar -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md bg-surface-container-lowest p-space-lg rounded-xl shadow-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Panel de Control General</span>
+<span class="inline-flex items-center gap-1 px-space-xs py-space-2xs rounded bg-surface-container-high text-secondary font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+          EN VIVO
+        </span>
+</div>
+<p class="font-body-md text-body-md text-secondary mt-space-2xs">
+        Monitoreo de operaciones en tiempo real, ventas del día y estado crítico de inventario
+      </p>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Segmented Time Range Controller -->
+<div class="inline-flex bg-surface-container-low p-space-2xs rounded-lg select-none" id="time-filter-container">
+<button class="px-space-md py-space-xs rounded font-label-md text-label-md bg-surface-container-lowest text-on-surface shadow-sm font-semibold transition-all" type="button">
+          Hoy
+        </button>
+<button class="px-space-md py-space-xs rounded font-label-md text-label-md text-secondary hover:text-on-surface transition-colors" type="button">
+          Últimos 7 días
+        </button>
+<button class="px-space-md py-space-xs rounded font-label-md text-label-md text-secondary hover:text-on-surface transition-colors" type="button">
+          Este mes
+        </button>
+</div>
+<!-- Action: Export Report -->
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container text-on-surface hover:bg-surface-container-high rounded font-label-md text-label-md transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-lg">download</span>
+<span>Descargar Reporte Ejecutivo</span>
+</button>
+</div>
+</div>
+<!-- Primary Metric Bento Grid (4 Core Hardware KPIs) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- Card 1: Ventas del Día -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Ventas de Hoy</span>
+<div class="font-display-md text-display-md text-on-surface font-bold mt-space-xs tabular-nums leading-none">
+            $4,892.50
+          </div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl">payments</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex items-center text-label-sm font-label-sm font-bold text-on-tertiary bg-tertiary px-space-xs py-space-2xs rounded">
+<span class="material-symbols-outlined text-xs mr-0.5">trending_up</span> +14.2%
+          </span>
+<span class="font-body-sm text-body-sm text-secondary">vs. ayer</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">68 tickets emitidos</span>
+</div>
+<!-- Sparkline Graphic Mini-Chart -->
+<div class="mt-space-sm">
+<svg class="w-full h-8 text-primary overflow-visible" fill="none" preserveaspectratio="none" viewbox="0 0 100 24">
+<path d="M0 20 L15 17 L30 19 L45 8 L60 14 L75 5 L90 7 L100 2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<path d="M0 20 L15 17 L30 19 L45 8 L60 14 L75 5 L90 7 L100 2 L100 24 L0 24 Z" fill="currentColor" fill-opacity="0.08"></path>
+</svg>
+</div>
+</div>
+<!-- Card 2: Valor Total de Inventario -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Valor del Inventario</span>
+<div class="font-display-md text-display-md text-on-surface font-bold mt-space-xs tabular-nums leading-none">
+            $86,420.00
+          </div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl">warehouse</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-secondary">Volumen total:</span>
+<span class="font-label-sm text-label-sm text-on-surface font-bold">3,420 unid.</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-space-xs py-space-2xs rounded text-secondary font-semibold">
+          485 SKUs
+        </span>
+</div>
+<div class="mt-space-sm w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-tertiary-container h-full rounded-full" style="width: 82%;"></div>
+</div>
+</div>
+<!-- Card 3: Alertas de Stock Crítico -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Stock Crítico</span>
+<div class="font-display-md text-display-md text-error font-bold mt-space-xs tabular-nums leading-none flex items-center gap-space-xs">
+            14
+            <span class="font-headline-sm text-headline-sm text-on-surface font-normal">SKUs</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-error-container text-on-error-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl">warning</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm bg-error text-on-error px-space-xs py-space-2xs rounded font-bold uppercase tracking-wider">
+          Orden inmediata
+        </span>
+<span class="font-body-sm text-body-sm text-error font-semibold">4 sin existencia</span>
+</div>
+<div class="mt-space-sm w-full bg-error-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 68%;"></div>
+</div>
+</div>
+<!-- Card 4: Ticket Promedio -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Ticket Promedio</span>
+<div class="font-display-md text-display-md text-on-surface font-bold mt-space-xs tabular-nums leading-none">
+            $71.95
+          </div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl">receipt</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex items-center text-label-sm font-label-sm font-bold text-on-tertiary bg-tertiary px-space-xs py-space-2xs rounded">
+            +5.8%
+          </span>
+<span class="font-body-sm text-body-sm text-secondary">mostrador</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Máx: $412.00</span>
+</div>
+<!-- Sparkline Graphic Mini-Chart -->
+<div class="mt-space-sm">
+<svg class="w-full h-8 text-tertiary overflow-visible" fill="none" preserveaspectratio="none" viewbox="0 0 100 24">
+<path d="M0 16 L20 18 L35 12 L50 15 L68 9 L82 11 L100 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<path d="M0 16 L20 18 L35 12 L50 15 L68 9 L82 11 L100 4 L100 24 L0 24 Z" fill="currentColor" fill-opacity="0.08"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Operational Core Grid: 8 Cols (Hourly Velocity & Tender Mix) + 4 Cols (Urgent Stock Depletion) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Left Column: Hourly Performance & Breakdown (8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-space-md bg-surface-container-lowest p-space-lg rounded-xl shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Rendimiento de Ventas por Hora</span>
+<p class="font-body-sm text-body-sm text-secondary mt-space-2xs">
+            Registro de tráfico de caja y picos de facturación en mostrador (08:00 - 18:00)
+          </p>
+</div>
+<div class="flex items-center gap-space-sm text-body-sm font-body-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-secondary font-medium">Hoy</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="w-3 h-3 rounded-full bg-secondary-fixed-dim"></span>
+<span class="text-secondary font-medium">Promedio Diario</span>
+</div>
+</div>
+</div>
+<!-- Main Hourly Chart Visual (Detailed Inline SVG Visualization) -->
+<div class="relative w-full h-64 mt-space-sm bg-surface-container-low/50 rounded-lg p-space-md flex flex-col justify-between">
+<!-- Background Grid Rules -->
+<div class="absolute inset-x-space-md inset-y-space-md flex flex-col justify-between pointer-events-none opacity-40">
+<div class="w-full h-px bg-outline-variant"></div>
+<div class="w-full h-px bg-outline-variant"></div>
+<div class="w-full h-px bg-outline-variant"></div>
+<div class="w-full h-px bg-outline-variant"></div>
+</div>
+<!-- SVG Curves & Nodes -->
+<svg class="w-full h-44 overflow-visible relative z-10" fill="none" preserveaspectratio="none" viewbox="0 0 600 160">
+<!-- Average Baseline Curve -->
+<path d="M 0 130 C 50 120, 100 95, 170 70 C 230 48, 290 85, 340 90 C 400 95, 460 55, 520 40 C 560 30, 585 50, 600 60" fill="none" stroke="#bec6e0" stroke-dasharray="4 4" stroke-width="2"></path>
+<!-- Today Gradient Area Fill -->
+<lineargradient id="primaryAreaGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#a33900" stop-opacity="0.25"></stop>
+<stop offset="100%" stop-color="#a33900" stop-opacity="0.0"></stop>
+</lineargradient>
+<path d="M 0 145 
+                   C 60 140, 100 120, 150 75 
+                   C 180 35, 210 22, 230 20 
+                   C 260 18, 290 60, 330 85 
+                   C 370 100, 420 80, 460 45 
+                   C 490 20, 520 18, 540 22 
+                   C 570 28, 585 65, 600 70 
+                   L 600 160 L 0 160 Z" fill="url(#primaryAreaGrad)"></path>
+<!-- Today Solid Stroke Line -->
+<path d="M 0 145 
+                   C 60 140, 100 120, 150 75 
+                   C 180 35, 210 22, 230 20 
+                   C 260 18, 290 60, 330 85 
+                   C 370 100, 420 80, 460 45 
+                   C 490 20, 520 18, 540 22 
+                   C 570 28, 585 65, 600 70" fill="none" stroke="#a33900" stroke-linecap="round" stroke-width="3"></path>
+<!-- Peak Node 1: 11:00 AM -->
+<circle cx="230" cy="20" fill="#ffffff" r="5" stroke="#a33900" stroke-width="3"></circle>
+<!-- Peak Node 2: 04:30 PM -->
+<circle cx="530" cy="20" fill="#ffffff" r="5" stroke="#a33900" stroke-width="3"></circle>
+</svg>
+<!-- Peak Markers Callouts -->
+<div class="absolute top-2 left-1/3 -translate-x-4 bg-inverse-surface text-inverse-on-surface px-space-xs py-space-2xs rounded shadow text-label-sm font-label-sm pointer-events-none">
+          Pico: $840 @ 11:00 AM
+        </div>
+<div class="absolute top-2 right-16 bg-inverse-surface text-inverse-on-surface px-space-xs py-space-2xs rounded shadow text-label-sm font-label-sm pointer-events-none">
+          Pico: $765 @ 04:30 PM
+        </div>
+<!-- Axis Labels (X-Axis) -->
+<div class="flex justify-between items-center text-body-sm font-body-sm text-secondary pt-space-xs border-t-0 select-none">
+<span>08:00</span>
+<span>10:00</span>
+<span class="font-bold text-on-surface">11:00</span>
+<span>12:00</span>
+<span>14:00</span>
+<span class="font-bold text-on-surface">16:30</span>
+<span>18:00</span>
+</div>
+</div>
+<!-- Payment Breakdown Segment (Tender Types Distribution) -->
+<div class="mt-space-sm pt-space-md border-t border-transparent bg-surface-container-low p-space-md rounded-lg">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold">Distribución por Método de Pago</span>
+<span class="font-body-sm text-body-sm text-secondary">Totales liquidados en tiempo real</span>
+</div>
+<!-- Multi-segment progress track -->
+<div class="w-full h-3 rounded-full bg-surface-container-high flex overflow-hidden">
+<div class="bg-primary h-full transition-all" style="width: 45%;" title="Efectivo 45%"></div>
+<div class="bg-tertiary h-full transition-all" style="width: 35%;" title="Tarjeta Débito/Crédito 35%"></div>
+<div class="bg-secondary h-full transition-all" style="width: 20%;" title="Transferencia/Pago Móvil 20%"></div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-md mt-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="w-3 h-3 rounded bg-primary shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold tabular-nums">45% ($2,201.62)</span>
+<span class="font-body-sm text-body-sm text-secondary">Efectivo Mostrador</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="w-3 h-3 rounded bg-tertiary shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold tabular-nums">35% ($1,712.38)</span>
+<span class="font-body-sm text-body-sm text-secondary">Tarjeta Débito / Crédito</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="w-3 h-3 rounded bg-secondary shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold tabular-nums">20% ($978.50)</span>
+<span class="font-body-sm text-body-sm text-secondary">Transferencia / Pago Móvil</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Urgent Replenishment Alerts (4 cols) -->
+<div class="lg:col-span-4 flex flex-col bg-surface-container-lowest p-space-lg rounded-xl shadow-sm justify-between">
+<div>
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-error text-xl">crisis_alert</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Alertas de Reposición</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-space-2xs">
+              Inventario por debajo del umbral mínimo de seguridad
+            </p>
+</div>
+<span class="font-label-sm text-label-sm bg-error-container text-on-error-container px-space-xs py-space-2xs rounded font-bold">
+            URGENTE
+          </span>
+</div>
+<!-- List of Critical SKUs -->
+<div class="flex flex-col gap-space-md mt-space-lg">
+<!-- Item 1: Cemento -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-start justify-between gap-space-xs">
+<div>
+<span class="font-label-md text-label-md text-on-surface font-bold block leading-tight">Cemento Gris Portland 50kg</span>
+<span class="font-body-sm text-body-sm text-secondary">SKU: CEM-POR-050 · Proveedor: Holcim</span>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-error bg-error/10 px-space-xs py-space-2xs rounded shrink-0">
+                4 / 50 mín
+              </span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 8%;"></div>
+</div>
+<div class="flex justify-end mt-space-2xs">
+<button class="font-label-sm text-label-sm text-primary hover:text-primary-container font-bold inline-flex items-center gap-1 transition-colors" type="button">
+<span>Generar Pedido</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Item 2: Tubo PVC -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-start justify-between gap-space-xs">
+<div>
+<span class="font-label-md text-label-md text-on-surface font-bold block leading-tight">Tubo PVC Sanitario 1/2 pulgada</span>
+<span class="font-body-sm text-body-sm text-secondary">SKU: TUB-PVC-012 · Proveedor: Tubrica</span>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-error bg-error/10 px-space-xs py-space-2xs rounded shrink-0">
+                8 / 40 mín
+              </span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 20%;"></div>
+</div>
+<div class="flex justify-end mt-space-2xs">
+<button class="font-label-sm text-label-sm text-primary hover:text-primary-container font-bold inline-flex items-center gap-1 transition-colors" type="button">
+<span>Generar Pedido</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Item 3: Disco de corte -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-start justify-between gap-space-xs">
+<div>
+<span class="font-label-md text-label-md text-on-surface font-bold block leading-tight">Disco de Corte Metal 4 1/2'</span>
+<span class="font-body-sm text-body-sm text-secondary">SKU: DIS-COR-412 · Proveedor: Bosch</span>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-error bg-error/10 px-space-xs py-space-2xs rounded shrink-0">
+                5 / 60 mín
+              </span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 8.3%;"></div>
+</div>
+<div class="flex justify-end mt-space-2xs">
+<button class="font-label-sm text-label-sm text-primary hover:text-primary-container font-bold inline-flex items-center gap-1 transition-colors" type="button">
+<span>Generar Pedido</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Item 4: Cerradura -->
+<div class="flex flex-col gap-space-xs p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-start justify-between gap-space-xs">
+<div>
+<span class="font-label-md text-label-md text-on-surface font-bold block leading-tight">Cerradura Sobreponer Cromo</span>
+<span class="font-body-sm text-body-sm text-secondary">SKU: CER-SOB-CRM · Proveedor: Cisa</span>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-error bg-error/10 px-space-xs py-space-2xs rounded shrink-0">
+                2 / 15 mín
+              </span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 13.3%;"></div>
+</div>
+<div class="flex justify-end mt-space-2xs">
+<button class="font-label-sm text-label-sm text-primary hover:text-primary-container font-bold inline-flex items-center gap-1 transition-colors" type="button">
+<span>Generar Pedido</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Footer for Batch Purchase Order -->
+<div class="mt-space-md pt-space-md border-t-0 bg-surface-container-low p-space-md rounded-lg flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Total a reabastecer</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">14 órdenes</span>
+</div>
+<button class="px-space-md py-space-xs bg-inverse-surface text-inverse-on-surface rounded font-label-md text-label-md hover:bg-on-surface transition-colors shadow-sm" type="button">
+          Auto-Generar OC
+        </button>
+</div>
+</div>
+</div>
+<!-- Lower Operational Section: Split Data Matrix (Top Products & Real-Time POS Feed) -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-space-lg mb-space-lg">
+<!-- Sub-section 1: Top 5 Best-Selling Hardware Items of the Week -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-xl">star</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Top 5 Productos Más Vendidos</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-surface-container-high px-space-xs py-space-2xs rounded">
+          Esta Semana
+        </span>
+</div>
+<!-- High Density Matrix Table -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-secondary font-label-sm text-label-sm uppercase">
+<th class="py-space-xs px-space-sm rounded-l">#</th>
+<th class="py-space-xs px-space-sm">Producto / SKU</th>
+<th class="py-space-xs px-space-sm">Categoría</th>
+<th class="py-space-xs px-space-sm text-right">Cant.</th>
+<th class="py-space-xs px-space-sm text-right rounded-r">Total</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-body-sm font-body-sm">
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-space-sm px-space-sm font-label-md text-label-md text-primary font-bold">01</td>
+<td class="py-space-sm px-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Taladro Percutor DeWalt 1/2' 20V</span>
+<span class="font-body-sm text-body-sm text-secondary">SKU: DWT-DCD776</span>
+</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+                  Herramientas
+                </span>
+</td>
+<td class="py-space-sm px-space-sm text-right font-label-md text-label-md font-bold text-on-surface tabular-nums">48 un.</td>
+<td class="py-space-sm px-space-sm text-right font-label-md text-label-md font-bold text-primary tabular-nums">$6,240.00</td>
+</tr>
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-space-sm px-space-sm font-label-md text-label-md text-on-surface-variant font-bold">02</td>
+<td class="py-space-sm px-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Cable Eléctrico THW Calibre 12 AWG</span>
+<span class="font-body-sm text-body-sm text-secondary">SKU: CBL-THW-012 (Rollos 100m)</span>
+</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+                  Electricidad
+                </span>
+</td>
+<td class="py-space-sm px-space-sm text-right font-label-md text-label-md font-bold text-on-surface tabular-nums">34 rol.</td>
+<td class="py-space-sm px-space-sm text-right font-label-md text-label-md font-bold text-primary tabular-nums">$2,890.00</td>
+</tr>
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-space-sm px-space-sm font-label-md text-label-md text-on-surface-variant font-bold">03</td>
+<td class="py-space-sm px-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Pintura Látex Blanco Profesional Cuñete</span>
+<span class="font-body-sm text-body-sm text-secondary">SKU: PNT-LTX-BLN (5 Galones)</span>
+</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+                  Pinturas
+                </span>
+</td>
+<td class="py-space-sm px-space-sm text-right font-label-md text-label-md font-bold text-on-surface tabular-nums">29 cuñ.</td>
+<td class="py-space-sm px-space-sm text-right font-label-md text-label-md font-bold text-primary tabular-nums">$2,175.00</td>
+</tr>
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-space-sm px-space-sm font-label-md text-label-md text-on-surface-variant font-bold">04</td>
+<td class="py-space-sm px-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Bombillo LED 12W Luz Blanca E27</span>
+<span class="font-body-sm text-body-sm text-secondary">SKU: ILU-LED-012</span>
+</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+                  Iluminación
+                </span>
+</td>
+<td class="py-space-sm px-space-sm text-right font-label-md text-label-md font-bold text-on-surface tabular-nums">215 un.</td>
+<td class="py-space-sm px-space-sm text-right font-label-md text-label-md font-bold text-primary tabular-nums">$967.50</td>
+</tr>
+<tr class="hover:bg-surface-container-low/70 transition-colors">
+<td class="py-space-sm px-space-sm font-label-md text-label-md text-on-surface-variant font-bold">05</td>
+<td class="py-space-sm px-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Tornillo Drywall Punta Fina 6x1 1/4</span>
+<span class="font-body-sm text-body-sm text-secondary">SKU: TRN-DRY-614 (Caja 1000u)</span>
+</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+                  Fijación
+                </span>
+</td>
+<td class="py-space-sm px-space-sm text-right font-label-md text-label-md font-bold text-on-surface tabular-nums">62 caj.</td>
+<td class="py-space-sm px-space-sm text-right font-label-md text-label-md font-bold text-primary tabular-nums">$744.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Sub-section 2: Latest POS Register Feed -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-xl">receipt_long</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Últimas Transacciones en Mostrador</span>
+</div>
+<button class="font-label-sm text-label-sm text-tertiary hover:underline font-bold" type="button">
+            Ver todas
+          </button>
+</div>
+<div class="flex flex-col gap-space-xs">
+<!-- Row 1 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-base">shopping_cart</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-md text-label-md font-bold text-on-surface">#VTA-2024-0941</span>
+<span class="px-space-xs py-space-2xs rounded text-label-sm font-label-sm bg-surface-container text-tertiary font-bold">
+                    Completada
+                  </span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary truncate">
+                  Cliente: Constructora Alfa C.A. · Cajero: R. Gómez
+                </span>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="font-label-lg text-label-lg font-bold text-on-surface tabular-nums">$342.50</span>
+<button class="p-space-2xs hover:bg-surface-container-high rounded text-secondary" title="Imprimir Ticket" type="button">
+<span class="material-symbols-outlined text-base">print</span>
+</button>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-base">shopping_cart</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-md text-label-md font-bold text-on-surface">#VTA-2024-0940</span>
+<span class="px-space-xs py-space-2xs rounded text-label-sm font-label-sm bg-surface-container text-tertiary font-bold">
+                    Completada
+                  </span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary truncate">
+                  Cliente: Manuel Suárez (Contado) · Cajero: C. Méndez
+                </span>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="font-label-lg text-label-lg font-bold text-on-surface tabular-nums">$18.90</span>
+<button class="p-space-2xs hover:bg-surface-container-high rounded text-secondary" title="Imprimir Ticket" type="button">
+<span class="material-symbols-outlined text-base">print</span>
+</button>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded bg-primary-fixed text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-base animate-pulse">pending</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-md text-label-md font-bold text-on-surface">#VTA-2024-0939</span>
+<span class="px-space-xs py-space-2xs rounded text-label-sm font-label-sm bg-primary-fixed text-on-primary-fixed font-bold">
+                    En proceso
+                  </span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary truncate">
+                  Cliente: Taller Metalmecánico Pérez · Caja 02
+                </span>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="font-label-lg text-label-lg font-bold text-on-surface tabular-nums">$520.00</span>
+<button class="p-space-2xs hover:bg-surface-container-high rounded text-secondary" title="Reanudar" type="button">
+<span class="material-symbols-outlined text-base">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- Row 4 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-base">shopping_cart</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-md text-label-md font-bold text-on-surface">#VTA-2024-0938</span>
+<span class="px-space-xs py-space-2xs rounded text-label-sm font-label-sm bg-surface-container text-tertiary font-bold">
+                    Completada
+                  </span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary truncate">
+                  Cliente: Plomería & Gas Express · Cajero: R. Gómez
+                </span>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="font-label-lg text-label-lg font-bold text-on-surface tabular-nums">$145.20</span>
+<button class="p-space-2xs hover:bg-surface-container-high rounded text-secondary" title="Imprimir Ticket" type="button">
+<span class="material-symbols-outlined text-base">print</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Sync Hardware Status Pill -->
+<div class="mt-space-md pt-space-xs flex items-center justify-between text-body-sm font-body-sm text-secondary">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>Caja 01: Impresora Fiscal OK</span>
+</div>
+<span class="tabular-nums font-mono">Último sync: 16:42:10</span>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Tab/Range Button Micro-Interaction Controller
+  document.querySelectorAll('#time-filter-container button').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('#time-filter-container button').forEach(b => {
+        b.className = 'px-space-md py-space-xs rounded font-label-md text-label-md text-secondary hover:text-on-surface transition-colors';
+      });
+      button.className = 'px-space-md py-space-xs rounded font-label-md text-label-md bg-surface-container-lowest text-on-surface shadow-sm font-semibold transition-all';
+    });
+  });
+</script></main></div></body></html>

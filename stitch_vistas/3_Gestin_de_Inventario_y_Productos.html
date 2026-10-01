@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "secondary-container": "#dae2fd", "secondary-fixed": "#dae2fd", "surface-container-highest": "#d3e4fe", "surface-variant": "#d3e4fe", "on-error-container": "#93000a", "secondary-fixed-dim": "#bec6e0", "on-secondary-fixed-variant": "#3f465c", "background": "#f8f9ff", "surface-bright": "#f8f9ff", "on-primary-container": "#fffbff", "on-tertiary-fixed-variant": "#004b73", "on-error": "#ffffff", "error": "#ba1a1a", "on-tertiary-fixed": "#001d31", "primary-fixed-dim": "#ffb599", "on-background": "#0b1c30", "surface-tint": "#a73a00", "tertiary": "#006194", "inverse-primary": "#ffb599", "on-secondary": "#ffffff", "on-primary": "#ffffff", "on-primary-fixed-variant": "#7f2b00", "surface-container-lowest": "#ffffff", "on-surface": "#0b1c30", "primary-container": "#cc4900", "inverse-on-surface": "#eaf1ff", "surface-dim": "#cbdbf5", "on-secondary-container": "#5c647a", "outline": "#8e7166", "surface": "#f8f9ff", "surface-container": "#e5eeff", "outline-variant": "#e2bfb2", "on-tertiary-container": "#fdfcff", "tertiary-container": "#007bb9", "tertiary-fixed-dim": "#93ccff", "secondary": "#565e74", "error-container": "#ffdad6", "surface-container-low": "#eff4ff", "on-tertiary": "#ffffff", "on-surface-variant": "#5a4138", "on-secondary-fixed": "#131b2e", "tertiary-fixed": "#cce5ff", "primary-fixed": "#ffdbce", "on-primary-fixed": "#370e00", "inverse-surface": "#213145", "surface-container-high": "#dce9ff", "primary": "#a33900" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-2xl": "2rem", "gutter": "1rem", "space-2xs": "0.125rem", "space-xl": "1.5rem", "gutter-desktop": "1.5rem", "space-sm": "0.5rem", "margin-desktop": "1.5rem", "space-lg": "1rem", "space-xs": "0.25rem", "space-md": "0.75rem", "margin": "1rem" }, "fontFamily": { "label-sm": ["Inter"], "body-md": ["Inter"], "body-lg": ["Inter"], "display-lg": ["Inter"], "headline-sm": ["Inter"], "body-sm": ["Inter"], "label-lg": ["Inter"], "headline-lg-mobile": ["Inter"], "display-md": ["Inter"], "headline-lg": ["Inter"], "label-md": ["Inter"] }, "fontSize": { "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "letterSpacing": "0.05em", "fontWeight": "700" }], "body-md": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0em", "fontWeight": "400" }], "body-lg": ["1rem", { "lineHeight": "1.5rem", "letterSpacing": "0em", "fontWeight": "400" }], "display-lg": ["2.25rem", { "lineHeight": "2.75rem", "letterSpacing": "-0.025em", "fontWeight": "700" }], "headline-sm": ["1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-sm": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.01em", "fontWeight": "400" }], "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-lg-mobile": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "display-md": ["1.875rem", { "lineHeight": "2.25rem", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-lg": ["1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-md": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.025em", "fontWeight": "600" }] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-inverse-surface text-inverse-on-surface z-50 flex flex-col justify-between select-none shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="h-16 px-space-lg flex items-center gap-space-sm bg-inverse-surface"><img alt="FerrePro Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UBd0Zl-G8wrzdWDTZBf4n-YlI8KTI_lAx5CqKgfwRTDXiBKq-76KKlyW4Ch1Zt8969iRjrvAZq3gmYnBrMIMx1Jr_t53VOIRvyJbILnztEDxKN2A1P_UBRt3zUM7FCWjCuwJ6fTZ1Llk5srxV_tAh3_L-BDkG8pjExuNqbezNSpfG3p9nq6Sz1GJE8j2Ugd4ZZj-lWO6Dd92SyHMstbfUGU486gQvhkvNwEpdn-DbCk2HF2Hv0DG6oJzY"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-surface-container-lowest font-bold leading-none tracking-tight">FerrePro</span><span class="font-label-sm text-label-sm text-secondary-fixed-dim uppercase tracking-wider mt-space-2xs">Hardware ERP</span></div></div><div class="px-space-md py-space-sm"><div class="font-label-sm text-label-sm text-secondary-fixed-dim uppercase px-space-sm py-space-xs">Operaciones</div></div><nav class="flex flex-col gap-space-2xs px-space-md" data-active-classes="bg-primary text-on-primary font-label-lg rounded"><a class="flex items-center justify-between px-space-md py-space-sm rounded text-inverse-on-surface hover:bg-surface-container-highest/20 hover:text-surface-container-lowest transition-colors" data-path="tablero" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-lg">dashboard</span><span class="font-body-md text-body-md">Tablero</span></div></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-inverse-on-surface hover:bg-surface-container-highest/20 hover:text-surface-container-lowest transition-colors" data-path="punto-de-venta" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-lg">point_of_sale</span><span class="font-body-md text-body-md">Punto de Venta</span></div><span class="font-label-sm text-label-sm bg-tertiary text-on-tertiary px-space-xs py-space-2xs rounded">Caja Activa</span></a><a aria-current="page" class="flex items-center justify-between px-space-md py-space-sm transition-colors bg-primary text-on-primary font-label-lg rounded" data-path="inventario-y-productos" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-lg">inventory_2</span><span class="font-body-md text-body-md">Inventario</span></div><span class="font-label-sm text-label-sm bg-error text-on-error px-space-xs py-space-2xs rounded">14 bajo stock</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-inverse-on-surface hover:bg-surface-container-highest/20 hover:text-surface-container-lowest transition-colors" data-path="historial-de-ventas" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-lg">receipt_long</span><span class="font-body-md text-body-md">Ventas</span></div></a><a class="flex items-center justify-between px-space-md py-space-sm rounded text-inverse-on-surface hover:bg-surface-container-highest/20 hover:text-surface-container-lowest transition-colors" data-path="clientes-y-proveedores" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-lg">group</span><span class="font-body-md text-body-md">Contactos</span></div></a></nav></div><div class="p-space-md m-space-md rounded bg-surface-container-highest/10 flex flex-col gap-space-xs"><div class="flex items-center gap-space-xs"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary-fixed-dim"></span></span><span class="font-label-sm text-label-sm text-inverse-on-surface font-bold">DB PostgreSQL</span></div><span class="font-body-sm text-body-sm text-secondary-fixed-dim leading-snug">Sincronizado con Base de Datos Cloud en tiempo real</span></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl z-40 px-gutter-desktop shadow-[0_1px_8px_rgba(0,0,0,0.04)] flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-lg flex-1 max-w-xl"><div class="relative w-full"><span class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-secondary text-lg">search</span><input class="w-full pl-10 pr-space-md py-space-xs h-9 bg-surface-container-low text-on-surface font-body-sm text-body-sm rounded outline-none placeholder:text-secondary focus:bg-surface-container-lowest" placeholder="Buscar producto por SKU, código de barras o ticket..." type="text"/></div><div class="hidden xl:flex items-center gap-space-xs shrink-0 px-space-md py-space-xs bg-surface-container-low rounded"><span class="material-symbols-outlined text-secondary text-base">storefront</span><span class="font-label-md text-label-md text-on-surface">Caja Principal - Mostrador 01</span></div></div><div class="flex items-center gap-space-md shrink-0"><button class="flex items-center gap-space-xs px-space-md py-space-xs h-9 bg-primary text-on-primary rounded font-label-md text-label-md hover:bg-primary-container transition-colors" type="button"><span class="material-symbols-outlined text-base">add_shopping_cart</span><span>Nueva Venta</span><kbd class="hidden sm:inline font-label-sm text-label-sm bg-on-primary/20 px-space-2xs rounded ml-space-2xs">F2</kbd></button><div class="relative flex items-center"><button aria-label="Notificaciones" class="p-space-xs rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-xl">notifications</span><span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span></button></div><div class="flex items-center gap-space-md pl-space-md"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxZ96QjvspT8k-h3-ER9Kxzn_KFlb_3f9QwWORx8L3VZ4y7h01wETPKv0hyn6X-KNisItQJWWIOebBawgvwYHh2N0twfOlJ7DuIG8CBehySHXgkHEw5_fFosPy7uvu-8L1wTkCUTLcFtmoM5yoqvi76Ivqrf44qEtFWXo3X_Eag6j0c9v2coaxhM_kgde89BKSuuobGzmwI_J1QE6GvHQ2VD1uFLOSPgHo-bitu32YIrGOmbfov_WJ"/><div class="hidden md:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface leading-tight">Carlos Méndez</span><span class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Gerente / Admin</span></div></div></div></header><main class="relative pt-16 bg-background w-full px-gutter-desktop py-space-lg min-h-screen"><div class="flex flex-col w-full gap-space-lg">
+<!-- Module Header & Quick Action Toolbar -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md bg-surface-container-lowest p-space-lg rounded shadow-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-xl">inventory_2</span>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Catálogo de Inventario y Productos</h1>
+</div>
+<p class="font-body-md text-body-md text-secondary mt-space-2xs">
+        Control centralizado de existencias, precios de compra/venta, categorías y alertas de stock mínimo.
+      </p>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<button class="flex items-center gap-space-xs px-space-md py-space-xs h-9 bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md rounded transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-base text-secondary">tune</span>
+<span>Ajuste de Stock Manual</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-xs h-9 bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md rounded transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-base text-tertiary">file_download</span>
+<span>Importar / Exportar</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-xs h-9 bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md rounded transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-base">add_circle</span>
+<span>+ Registrar Nuevo Producto</span>
+</button>
+</div>
+</div>
+<!-- Metric Quick Status Counters (RF01 / RF02 / RF06) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Total Productos -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Total de Productos</span>
+<span class="font-display-md text-display-md text-on-surface font-bold mt-space-2xs">485</span>
+<span class="font-body-sm text-body-sm text-secondary">SKUs registrados activos</span>
+</div>
+<div class="w-12 h-12 rounded bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">category</span>
+</div>
+</div>
+<!-- En Nivel Óptimo -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">En Nivel Óptimo</span>
+<span class="font-display-md text-display-md text-tertiary font-bold mt-space-2xs">421</span>
+<div class="flex items-center gap-space-xs mt-space-2xs">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-body-sm text-body-sm text-secondary">86.8% del catálogo</span>
+</div>
+</div>
+<div class="w-12 h-12 rounded bg-surface-container-high flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-2xl">check_circle</span>
+</div>
+</div>
+<!-- Próximos a Mínimo -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Próximos a Mínimo</span>
+<span class="font-display-md text-display-md text-primary-container font-bold mt-space-2xs">50</span>
+<div class="flex items-center gap-space-xs mt-space-2xs">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<span class="font-body-sm text-body-sm text-secondary">Reordenar preventivo</span>
+</div>
+</div>
+<div class="w-12 h-12 rounded bg-primary-fixed flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-2xl">warning</span>
+</div>
+</div>
+<!-- Stock Crítico / Agotado -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Stock Crítico / Agotado</span>
+<span class="font-display-md text-display-md text-error font-bold mt-space-2xs">14</span>
+<div class="flex items-center gap-space-xs mt-space-2xs">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="font-body-sm text-body-sm text-error font-semibold">Requiere OC urgente</span>
+</div>
+</div>
+<div class="w-12 h-12 rounded bg-error-container flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-2xl">error</span>
+</div>
+</div>
+</div>
+<!-- Advanced Filters & Fast Search Bar -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-col xl:flex-row gap-space-md items-stretch xl:items-center justify-between">
+<!-- Live SKU / Barcode / Name Search -->
+<div class="relative flex-1 min-w-[260px]">
+<span class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-secondary text-lg">barcode_scanner</span>
+<input class="w-full pl-10 pr-space-md py-space-xs h-9 bg-surface-container-low text-on-surface font-body-sm text-body-sm rounded outline-none placeholder:text-secondary focus:bg-surface-container-lowest" id="liveSearchInput" placeholder="Escanear código de barras, SKU o escribir descripción..." type="text"/>
+</div>
+<!-- Selectors Group -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Category Filter -->
+<div class="flex items-center bg-surface-container-low rounded px-space-sm h-9">
+<span class="material-symbols-outlined text-secondary text-base mr-space-xs">folder_open</span>
+<select class="bg-transparent text-on-surface font-label-md text-label-md outline-none cursor-pointer pr-space-xs">
+<option value="all">Todas las Categorías</option>
+<option value="herramientas">Herramientas Eléctricas</option>
+<option value="plomeria">Plomería</option>
+<option value="electricidad">Electricidad</option>
+<option value="construccion">Construcción</option>
+<option value="pinturas">Pinturas</option>
+<option value="cerrajeria">Cerrajería</option>
+</select>
+</div>
+<!-- Supplier Filter -->
+<div class="flex items-center bg-surface-container-low rounded px-space-sm h-9">
+<span class="material-symbols-outlined text-secondary text-base mr-space-xs">local_shipping</span>
+<select class="bg-transparent text-on-surface font-label-md text-label-md outline-none cursor-pointer pr-space-xs">
+<option value="all">Todos los Proveedores</option>
+<option value="ferremayoreo">FerreMayoreo C.A.</option>
+<option value="andinos">Suministros Industriales Andinos</option>
+<option value="tuboplast">Distribuidora TuboPlast</option>
+<option value="canteras">Canteras & Cementos Nac.</option>
+<option value="electromateriales">Electromateriales C.A.</option>
+</select>
+</div>
+<!-- Stock Status Filter -->
+<div class="flex items-center bg-surface-container-low rounded px-space-sm h-9">
+<span class="material-symbols-outlined text-secondary text-base mr-space-xs">filter_alt</span>
+<select class="bg-transparent text-on-surface font-label-md text-label-md outline-none cursor-pointer pr-space-xs">
+<option value="all">Estado: Todos</option>
+<option value="critico">Solo Críticos (< mín)</option>
+<option value="alerta">Próximos a Mínimo</option>
+<option value="optimo">Nivel Óptimo</option>
+</select>
+</div>
+<button class="p-space-xs h-9 w-9 flex items-center justify-center rounded bg-surface-container-low hover:bg-surface-container text-secondary transition-colors" title="Limpiar Filtros" type="button">
+<span class="material-symbols-outlined text-lg">restart_alt</span>
+</button>
+</div>
+</div>
+<!-- Main Content Layout: Table (Grid) + Quick Kardex Drawer View -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- Dense Logistics Inventory Grid (RF01, RF02, RF04) -->
+<div class="xl:col-span-8 2xl:col-span-9 bg-surface-container-lowest rounded shadow-sm overflow-hidden flex flex-col">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-secondary font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-space-sm px-space-md">Código / SKU</th>
+<th class="py-space-sm px-space-md">Producto & Categoría</th>
+<th class="py-space-sm px-space-sm">Proveedor</th>
+<th class="py-space-sm px-space-sm text-center">Unidad</th>
+<th class="py-space-sm px-space-sm text-right">Compra</th>
+<th class="py-space-sm px-space-sm text-right">Venta / Margen</th>
+<th class="py-space-sm px-space-md">Stock vs Mínimo</th>
+<th class="py-space-sm px-space-md text-center">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-on-surface font-body-sm text-body-sm">
+<!-- Row 1: Taladro DeWalt -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group cursor-pointer" onclick="selectKardex('HERR-TAL-001', 'Taladro Percutor DeWalt 1/2" 20V Max', 'Herramientas Eléctricas', '18', '5', 'Unid', '$85.00', '$125.00')">
+<td class="py-space-sm px-space-md font-label-md text-label-md text-primary font-mono whitespace-nowrap">
+                HERR-TAL-001
+              </td>
+<td class="py-space-sm px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 shrink-0 bg-surface-container rounded overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Heavy-duty professional DeWalt cordless hammer drill isolated on clean bright industrial surface with subtle warm shadows, high precision product photograph, commercial hardware catalog style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACiJOa-QF27_gBo6BT7kvg1KODymRKyDXv8Qdg93WGCAsq7i3HMYzz5nDpz2YTsJ7EsgYO1314_xDup6FJzauKlaWRr0i4_d8XJSVi3z7luCjNIkHthLkHTw3mix29Ajemvkf5uTZvZU57WoaX0Uf9QpZgh8vJvEzSlC3BG8WcGdPCy7DiJkY-_icpPSAuk3nuVvxzF1ThL38z5OiLnj7nLPkKQ6CM1JP3TuDBPEnRpg9uqgEdj-az"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate font-semibold">Taladro Percutor DeWalt 1/2" 20V Max</span>
+<span class="font-body-sm text-body-sm text-secondary">Herramientas Eléctricas</span>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-sm text-secondary truncate max-w-[120px]">FerreMayoreo C.A.</td>
+<td class="py-space-sm px-space-sm text-center">
+<span class="px-space-xs py-space-2xs bg-surface-container rounded font-label-sm text-label-sm text-on-surface">Unid</span>
+</td>
+<td class="py-space-sm px-space-sm text-right font-mono font-medium">$85.00</td>
+<td class="py-space-sm px-space-sm text-right">
+<div class="flex flex-col items-end">
+<span class="font-mono font-bold text-on-surface">$125.00</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">+47%</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col gap-space-2xs w-36">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="font-mono font-bold text-on-surface">18 <span class="font-normal text-secondary">/ 5 mín</span></span>
+<span class="px-space-xs py-space-2xs rounded bg-surface-container text-tertiary font-bold text-[10px]">ÓPTIMO</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 85%;"></div>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<div class="flex items-center justify-center gap-space-2xs">
+<button class="p-space-2xs hover:bg-surface-container rounded text-tertiary" title="Ver Kárdex" type="button">
+<span class="material-symbols-outlined text-base">receipt_long</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-secondary" title="Editar Producto" type="button">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-primary" title="Ajuste Rápido" type="button">
+<span class="material-symbols-outlined text-base">swap_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Cemento Gris (Crítico) -->
+<tr class="bg-error-container/10 hover:bg-error-container/20 transition-colors group cursor-pointer" onclick="selectKardex('MAT-CEM-042', 'Cemento Gris Portland Tipo I 50kg', 'Construcción', '4', '50', 'Saco', '$7.20', '$9.50')">
+<td class="py-space-sm px-space-md font-label-md text-label-md text-primary font-mono whitespace-nowrap">
+                MAT-CEM-042
+              </td>
+<td class="py-space-sm px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 shrink-0 bg-surface-container rounded overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Stack of industrial 50kg grey Portland cement bags in organized hardware warehouse on pallet, natural studio lighting, ultra-sharp detail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzjHQddskN7LdwnKIRQgLPqSNCn4lTvb9mAJbHz51HZqmRrpUKITS0AlWv3rEpzoHm-lePC7tpI9VjEeciqtbzt6TknnztNq1rkfprLiUAH8TKFxMzhpk4vvdSryvO-3UAjALEhR-KJv06EjXgrFcE7ydK-1HVNO5E0YzVtlIc5_Mxq1ft41qIKAZwAP81rYZSg724uunq6iLACEIVCBqtqB8OXz1TmJirDmVI06vRZMVtR8GJogyU"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate font-semibold">Cemento Gris Portland Tipo I 50kg</span>
+<span class="font-body-sm text-body-sm text-secondary">Construcción</span>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-sm text-secondary truncate max-w-[120px]">Canteras & Cementos Nac.</td>
+<td class="py-space-sm px-space-sm text-center">
+<span class="px-space-xs py-space-2xs bg-surface-container rounded font-label-sm text-label-sm text-on-surface">Saco</span>
+</td>
+<td class="py-space-sm px-space-sm text-right font-mono font-medium">$7.20</td>
+<td class="py-space-sm px-space-sm text-right">
+<div class="flex flex-col items-end">
+<span class="font-mono font-bold text-on-surface">$9.50</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">+32%</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col gap-space-2xs w-36">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="font-mono font-bold text-error">4 <span class="font-normal text-secondary">/ 50 mín</span></span>
+<span class="px-space-xs py-space-2xs rounded bg-error text-on-error font-bold text-[10px]">CRÍTICO</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 8%;"></div>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<div class="flex items-center justify-center gap-space-2xs">
+<button class="p-space-2xs hover:bg-surface-container rounded text-tertiary" title="Ver Kárdex" type="button">
+<span class="material-symbols-outlined text-base">receipt_long</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-secondary" title="Editar Producto" type="button">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-error" title="Ajuste Rápido" type="button">
+<span class="material-symbols-outlined text-base">add_alert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Tubo PVC Pavco (Crítico) -->
+<tr class="bg-error-container/10 hover:bg-error-container/20 transition-colors group cursor-pointer" onclick="selectKardex('PLOM-TUB-018', 'Tubo PVC Sanitario 4" x 3m Pavco', 'Plomería', '8', '40', 'Tubo', '$11.50', '$16.80')">
+<td class="py-space-sm px-space-md font-label-md text-label-md text-primary font-mono whitespace-nowrap">
+                PLOM-TUB-018
+              </td>
+<td class="py-space-sm px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 shrink-0 bg-surface-container rounded overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="High-density PVC sanitary pipes stacked horizontally in hardware supply warehouse rack, crisp product lighting, deep blue and orange hardware aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYXZSiDB5hPUxpeBPEIninP60qJJ4LLj5rhsJqVF5zj0w7etpbB4ppJ3buYiY_FLRfNd-LUYqJOxPpsxX12Aajk-UEqsd7uuFWvOIvBM5RGfLa4otS_p-9-xpaqO1D0zrP82SWbBOosMYciBmpF-xuJ28ashC8jpic8uO6_6LchGzES6O7rcUMh64wscieKWb6tA-395xtKNKu7VEqEDtPH32hSovNl7u30vEGRTz58YWU7xco58B7"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate font-semibold">Tubo PVC Sanitario 4" x 3m Pavco</span>
+<span class="font-body-sm text-body-sm text-secondary">Plomería</span>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-sm text-secondary truncate max-w-[120px]">Distribuidora TuboPlast</td>
+<td class="py-space-sm px-space-sm text-center">
+<span class="px-space-xs py-space-2xs bg-surface-container rounded font-label-sm text-label-sm text-on-surface">Tubo</span>
+</td>
+<td class="py-space-sm px-space-sm text-right font-mono font-medium">$11.50</td>
+<td class="py-space-sm px-space-sm text-right">
+<div class="flex flex-col items-end">
+<span class="font-mono font-bold text-on-surface">$16.80</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">+46%</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col gap-space-2xs w-36">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="font-mono font-bold text-error">8 <span class="font-normal text-secondary">/ 40 mín</span></span>
+<span class="px-space-xs py-space-2xs rounded bg-error text-on-error font-bold text-[10px]">CRÍTICO</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 20%;"></div>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<div class="flex items-center justify-center gap-space-2xs">
+<button class="p-space-2xs hover:bg-surface-container rounded text-tertiary" title="Ver Kárdex" type="button">
+<span class="material-symbols-outlined text-base">receipt_long</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-secondary" title="Editar Producto" type="button">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-error" title="Ajuste Rápido" type="button">
+<span class="material-symbols-outlined text-base">add_alert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Cable THW #12 (Mínimo / Alerta) -->
+<tr class="bg-primary-fixed/20 hover:bg-primary-fixed/30 transition-colors group cursor-pointer" onclick="selectKardex('ELEC-CAB-009', 'Cable Conductor THW #12 AWG Negro', 'Electricidad', '12', '15', 'Rollo 100m', '$34.00', '$48.00')">
+<td class="py-space-sm px-space-md font-label-md text-label-md text-primary font-mono whitespace-nowrap">
+                ELEC-CAB-009
+              </td>
+<td class="py-space-sm px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 shrink-0 bg-surface-container rounded overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Spool of heavy duty insulated electrical wire THW gauge 12 in coiled hardware store presentation, dark textured studio backdrop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnqebjp122UrcjdPeC2BV9-Zi-DpvCZbeiYZdLT-EvjsFtpptljpD6k8wPOU9d_wCg_rbHlSqRzE3SgTED83di4pQP3JMaQORRWElORPDmjT2TmleqyBnpQRxtdvZzEJTMMSGErDL7kadzUXipR2s05WpLSpQBUMT4Yt-uomnVXupwrg3_T3Z907aLHSUTzUfUslts0-1r_Bu9XyK8MHr4Do-Fq8ReDbFz2WPtNo06bjXFLJbbUcyu"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate font-semibold">Cable Conductor THW #12 AWG Negro</span>
+<span class="font-body-sm text-body-sm text-secondary">Electricidad</span>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-sm text-secondary truncate max-w-[120px]">Electromateriales C.A.</td>
+<td class="py-space-sm px-space-sm text-center">
+<span class="px-space-xs py-space-2xs bg-surface-container rounded font-label-sm text-label-sm text-on-surface">Rollo</span>
+</td>
+<td class="py-space-sm px-space-sm text-right font-mono font-medium">$34.00</td>
+<td class="py-space-sm px-space-sm text-right">
+<div class="flex flex-col items-end">
+<span class="font-mono font-bold text-on-surface">$48.00</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">+41%</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col gap-space-2xs w-36">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="font-mono font-bold text-primary-container">12 <span class="font-normal text-secondary">/ 15 mín</span></span>
+<span class="px-space-xs py-space-2xs rounded bg-primary-fixed text-primary-container font-bold text-[10px]">ALERTA MÍN</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 80%;"></div>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<div class="flex items-center justify-center gap-space-2xs">
+<button class="p-space-2xs hover:bg-surface-container rounded text-tertiary" title="Ver Kárdex" type="button">
+<span class="material-symbols-outlined text-base">receipt_long</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-secondary" title="Editar Producto" type="button">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-primary-container" title="Ajuste Rápido" type="button">
+<span class="material-symbols-outlined text-base">swap_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Llave Stilson (Óptimo) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group cursor-pointer" onclick="selectKardex('HERR-MAN-104', 'Llave de Tubo Stilson 14" Heavy Duty', 'Herramientas Manuales', '25', '8', 'Unid', '$14.20', '$22.50')">
+<td class="py-space-sm px-space-md font-label-md text-label-md text-primary font-mono whitespace-nowrap">
+                HERR-MAN-104
+              </td>
+<td class="py-space-sm px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 shrink-0 bg-surface-container rounded overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Cast iron heavy duty pipe wrench Stilson tool 14 inch on industrial workshop workbench, vivid mechanical details and textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2Yj7Hh_YAoY7T1DMvIBq_8tlh3rZ4xyAbZ-GxBMKNgaFqw32kVlTb0NgpSFXwWA7DNGzYtlUl9c0mfjmrBFVnNDnTZiawDqYjH3orgEa9WzYxrfMSp7lSir3EkBRSFfTNAGb1sgx2UUKlQsqT8MTO86odqptSRtOZL3wCpOn7Se6OioSBMoRuZhjNW2wEJyIybRQHNAKcGVet3-Nf61Oa59khPpQ4qUMBSoIwx6uw1JKjBXeDXTIb"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate font-semibold">Llave de Tubo Stilson 14" Heavy Duty</span>
+<span class="font-body-sm text-body-sm text-secondary">Herramientas Manuales</span>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-sm text-secondary truncate max-w-[120px]">FerreMayoreo C.A.</td>
+<td class="py-space-sm px-space-sm text-center">
+<span class="px-space-xs py-space-2xs bg-surface-container rounded font-label-sm text-label-sm text-on-surface">Unid</span>
+</td>
+<td class="py-space-sm px-space-sm text-right font-mono font-medium">$14.20</td>
+<td class="py-space-sm px-space-sm text-right">
+<div class="flex flex-col items-end">
+<span class="font-mono font-bold text-on-surface">$22.50</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">+58%</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col gap-space-2xs w-36">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="font-mono font-bold text-on-surface">25 <span class="font-normal text-secondary">/ 8 mín</span></span>
+<span class="px-space-xs py-space-2xs rounded bg-surface-container text-tertiary font-bold text-[10px]">ÓPTIMO</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 95%;"></div>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<div class="flex items-center justify-center gap-space-2xs">
+<button class="p-space-2xs hover:bg-surface-container rounded text-tertiary" title="Ver Kárdex" type="button">
+<span class="material-symbols-outlined text-base">receipt_long</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-secondary" title="Editar Producto" type="button">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-primary" title="Ajuste Rápido" type="button">
+<span class="material-symbols-outlined text-base">swap_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: Disco de Corte Metal Extra Fino (Crítico) -->
+<tr class="bg-error-container/10 hover:bg-error-container/20 transition-colors group cursor-pointer" onclick="selectKardex('HERR-CON-077', 'Disco de Corte Metal Extra Fino 4 1/2"', 'Consumibles / Abrasivos', '5', '60', 'Unid', '$0.85', '$1.50')">
+<td class="py-space-sm px-space-md font-label-md text-label-md text-primary font-mono whitespace-nowrap">
+                HERR-CON-077
+              </td>
+<td class="py-space-sm px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 shrink-0 bg-surface-container rounded overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Industrial 4.5 inch thin angle grinder cutting disc for steel and metal cutting, sharp commercial studio hardware shot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACSV6nk5GH7unBhDQ8xvEHc-KVYW77ndJmib4e_pAqQ5HoQUT6T0PnVsLqMFSQg-1D0XZ3fh1J4wRNpJVQc-ezcJV5VMTE6ALfbdNZSZxvhF0yQ2CwwwLsDK325eAhHXNKeNF8oj9_-FTXKMSRT1VYzkDLjEZ26s5lQMJ0V3mpLzQ9iD4TyrUFeGrp9ee6e4e34ikZBZ1Ho7Ekr83sEiY5sEZw1b_Iz7OhQgOyY2FjzHIZdyblJsG_"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface truncate font-semibold">Disco de Corte Metal Extra Fino 4 1/2"</span>
+<span class="font-body-sm text-body-sm text-secondary">Abrasivos</span>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-sm text-secondary truncate max-w-[120px]">Abrasivos del Centro</td>
+<td class="py-space-sm px-space-sm text-center">
+<span class="px-space-xs py-space-2xs bg-surface-container rounded font-label-sm text-label-sm text-on-surface">Unid</span>
+</td>
+<td class="py-space-sm px-space-sm text-right font-mono font-medium">$0.85</td>
+<td class="py-space-sm px-space-sm text-right">
+<div class="flex flex-col items-end">
+<span class="font-mono font-bold text-on-surface">$1.50</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">+76%</span>
+</div>
+</td>
+<td class="py-space-sm px-space-md">
+<div class="flex flex-col gap-space-2xs w-36">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="font-mono font-bold text-error">5 <span class="font-normal text-secondary">/ 60 mín</span></span>
+<span class="px-space-xs py-space-2xs rounded bg-error text-on-error font-bold text-[10px]">CRÍTICO</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 8%;"></div>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-md text-center">
+<div class="flex items-center justify-center gap-space-2xs">
+<button class="p-space-2xs hover:bg-surface-container rounded text-tertiary" title="Ver Kárdex" type="button">
+<span class="material-symbols-outlined text-base">receipt_long</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-secondary" title="Editar Producto" type="button">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+<button class="p-space-2xs hover:bg-surface-container rounded text-error" title="Ajuste Rápido" type="button">
+<span class="material-symbols-outlined text-base">add_alert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination & Rows Controls -->
+<div class="bg-surface-container-lowest p-space-md flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm text-secondary font-body-sm text-body-sm">
+<span>Mostrando <strong>1 - 6</strong> de <strong>485</strong> productos</span>
+<span class="hidden sm:inline">|</span>
+<div class="flex items-center gap-space-xs">
+<span>Filas por página:</span>
+<select class="bg-surface-container-low px-space-xs py-space-2xs rounded text-on-surface font-label-sm text-label-sm outline-none">
+<option>10</option>
+<option>25</option>
+<option>50</option>
+<option>100</option>
+</select>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-space-xs rounded bg-surface-container-low text-secondary hover:bg-surface-container disabled:opacity-40 transition-colors flex items-center justify-center" disabled="" type="button">
+<span class="material-symbols-outlined text-base">first_page</span>
+</button>
+<button class="px-space-sm py-space-xs rounded bg-surface-container-low text-secondary hover:bg-surface-container disabled:opacity-40 transition-colors flex items-center justify-center" disabled="" type="button">
+<span class="material-symbols-outlined text-base">chevron_left</span>
+</button>
+<button class="px-space-sm py-space-xs rounded bg-primary text-on-primary font-label-sm text-label-sm font-bold" type="button">1</button>
+<button class="px-space-sm py-space-xs rounded bg-surface-container-low text-on-surface font-label-sm text-label-sm hover:bg-surface-container" type="button">2</button>
+<button class="px-space-sm py-space-xs rounded bg-surface-container-low text-on-surface font-label-sm text-label-sm hover:bg-surface-container" type="button">3</button>
+<span class="px-space-xs text-secondary font-label-sm text-label-sm">...</span>
+<button class="px-space-sm py-space-xs rounded bg-surface-container-low text-on-surface font-label-sm text-label-sm hover:bg-surface-container" type="button">49</button>
+<button class="px-space-sm py-space-xs rounded bg-surface-container-low text-secondary hover:bg-surface-container transition-colors flex items-center justify-center" type="button">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+<button class="px-space-sm py-space-xs rounded bg-surface-container-low text-secondary hover:bg-surface-container transition-colors flex items-center justify-center" type="button">
+<span class="material-symbols-outlined text-base">last_page</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Panel: Live Product Inspection / Quick Kárdex View (RF03 / RF06) -->
+<div class="xl:col-span-4 2xl:col-span-3 flex flex-col gap-space-md">
+<!-- Selected Item Detail Card -->
+<div class="bg-surface-container-lowest p-space-lg rounded shadow-sm flex flex-col gap-space-md relative overflow-hidden">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-xl">manage_search</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Kárdex Rápido</h3>
+</div>
+<span class="font-mono text-label-sm text-label-sm bg-surface-container px-space-xs py-space-2xs rounded text-secondary" id="kardexSku">
+            HERR-TAL-001
+          </span>
+</div>
+<div class="flex flex-col gap-space-xs bg-surface-container-low p-space-md rounded">
+<span class="font-label-sm text-label-sm text-secondary uppercase" id="kardexCategory">Herramientas Eléctricas</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug" id="kardexName">
+            Taladro Percutor DeWalt 1/2" 20V Max
+          </h4>
+<div class="grid grid-cols-2 gap-space-sm mt-space-xs pt-space-xs">
+<div>
+<span class="font-body-sm text-body-sm text-secondary block">Stock Disponible</span>
+<span class="font-display-md text-display-md font-bold text-on-surface" id="kardexStock">18</span>
+<span class="font-body-sm text-body-sm text-secondary" id="kardexUnit">Unidades</span>
+</div>
+<div>
+<span class="font-body-sm text-body-sm text-secondary block">Punto de Reorden</span>
+<span class="font-display-md text-display-md font-bold text-primary-container" id="kardexMin">5</span>
+<span class="font-body-sm text-body-sm text-secondary">Mínimo sugerido</span>
+</div>
+</div>
+</div>
+<!-- Mini Visual Inventory Flow Diagram (Sparkline representation) -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Flujo de Stock (Últimos 14 Días)</span>
+<span class="font-label-sm text-label-sm text-tertiary font-bold">+12 Salidas netas</span>
+</div>
+<div class="w-full h-16 bg-surface-container-low rounded p-space-xs flex items-end justify-between gap-1">
+<div class="w-full bg-tertiary/20 rounded-t h-[40%]" title="Día 1: 24 unid"></div>
+<div class="w-full bg-tertiary/30 rounded-t h-[48%]" title="Día 2: 24 unid"></div>
+<div class="w-full bg-tertiary/40 rounded-t h-[52%]" title="Día 3: 23 unid"></div>
+<div class="w-full bg-primary/40 rounded-t h-[35%]" title="Día 4: Salida -4"></div>
+<div class="w-full bg-primary/50 rounded-t h-[28%]" title="Día 5: Salida -2"></div>
+<div class="w-full bg-primary-container/80 rounded-t h-[75%]" title="Día 6: Entrada +10 (OC-492)"></div>
+<div class="w-full bg-tertiary/40 rounded-t h-[70%]" title="Día 7: 28 unid"></div>
+<div class="w-full bg-primary/40 rounded-t h-[60%]" title="Día 8: Salida -3"></div>
+<div class="w-full bg-primary/50 rounded-t h-[50%]" title="Día 9: Salida -4"></div>
+<div class="w-full bg-tertiary/40 rounded-t h-[48%]" title="Día 10: 21 unid"></div>
+<div class="w-full bg-primary/40 rounded-t h-[42%]" title="Día 11: Salida -2"></div>
+<div class="w-full bg-tertiary/50 rounded-t h-[42%]" title="Día 12: 19 unid"></div>
+<div class="w-full bg-primary/60 rounded-t h-[38%]" title="Día 13: Salida -1"></div>
+<div class="w-full bg-primary rounded-t h-[36%]" title="Hoy: 18 unid"></div>
+</div>
+</div>
+<!-- Recent Kárdex Ledger Entries (Entradas y Salidas) -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Últimos Movimientos Registrados</span>
+<div class="flex flex-col gap-space-2xs">
+<!-- Entry 1: Sale -->
+<div class="p-space-xs bg-surface-container-low rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-7 h-7 rounded bg-error/10 text-error flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-sm">arrow_upward</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface leading-tight">Venta Mostrador #0921</span>
+<span class="font-body-sm text-body-sm text-secondary">Hoy, 10:45 AM • Caja 01</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-mono font-bold text-error text-body-md">-1 Unid</span>
+<span class="block font-body-sm text-body-sm text-secondary font-mono">$125.00</span>
+</div>
+</div>
+<!-- Entry 2: Sale -->
+<div class="p-space-xs bg-surface-container-low rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-7 h-7 rounded bg-error/10 text-error flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-sm">arrow_upward</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface leading-tight">Venta Mostrador #0914</span>
+<span class="font-body-sm text-body-sm text-secondary">Ayer, 04:12 PM • Caja 02</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-mono font-bold text-error text-body-md">-2 Unid</span>
+<span class="block font-body-sm text-body-sm text-secondary font-mono">$250.00</span>
+</div>
+</div>
+<!-- Entry 3: Purchase / Entry -->
+<div class="p-space-xs bg-surface-container-low rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-7 h-7 rounded bg-tertiary/10 text-tertiary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-sm">arrow_downward</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface leading-tight">Entrada Proveedor OC-492</span>
+<span class="font-body-sm text-body-sm text-secondary">18 Oct • FerreMayoreo C.A.</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-mono font-bold text-tertiary text-body-md">+10 Unid</span>
+<span class="block font-body-sm text-body-sm text-secondary font-mono">$850.00</span>
+</div>
+</div>
+<!-- Entry 4: Manual Adjustment -->
+<div class="p-space-xs bg-surface-container-low rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-7 h-7 rounded bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-sm">tune</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface leading-tight">Ajuste Físico Auditoría</span>
+<span class="font-body-sm text-body-sm text-secondary">12 Oct • Carlos Méndez</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-mono font-bold text-tertiary text-body-md">+1 Unid</span>
+<span class="block font-body-sm text-body-sm text-secondary">Conteo Cierre</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Fast Context Actions -->
+<div class="grid grid-cols-2 gap-space-sm pt-space-xs">
+<button class="w-full flex items-center justify-center gap-space-xs px-space-md py-space-xs bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md rounded transition-colors" type="button">
+<span class="material-symbols-outlined text-base">print</span>
+<span>Kárdex Completo</span>
+</button>
+<button class="w-full flex items-center justify-center gap-space-xs px-space-md py-space-xs bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md rounded transition-colors" type="button">
+<span class="material-symbols-outlined text-base">add</span>
+<span>Ingreso de Stock</span>
+</button>
+</div>
+</div>
+<!-- Quick Supply Alert Banner (Critical Reorder Prompt) -->
+<div class="p-space-md bg-inverse-surface text-inverse-on-surface rounded shadow-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-fixed-dim text-lg">local_shipping</span>
+<span class="font-label-md text-label-md text-inverse-on-surface font-bold">Generación de Orden de Compra</span>
+</div>
+<span class="font-label-sm text-label-sm bg-error text-on-error px-space-xs py-space-2xs rounded">14 Críticos</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary-fixed-dim leading-snug">
+          Existen 14 productos que han descendido por debajo del stock de seguridad mínimo requerido para mostrador.
+        </p>
+<button class="w-full h-8 flex items-center justify-center gap-space-xs bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md rounded transition-colors" type="button">
+<span class="material-symbols-outlined text-base">auto_fix_high</span>
+<span>Sugerir Orden Automática</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function selectKardex(sku, name, category, stock, min, unit, buyPrice, sellPrice) {
+    const skuEl = document.getElementById('kardexSku');
+    const nameEl = document.getElementById('kardexName');
+    const catEl = document.getElementById('kardexCategory');
+    const stockEl = document.getElementById('kardexStock');
+    const minEl = document.getElementById('kardexMin');
+    const unitEl = document.getElementById('kardexUnit');
+
+    if (skuEl) skuEl.textContent = sku;
+    if (nameEl) nameEl.innerHTML = name;
+    if (catEl) catEl.textContent = category;
+    if (stockEl) stockEl.textContent = stock;
+    if (minEl) minEl.textContent = min;
+    if (unitEl) unitEl.textContent = unit + 's';
+  }
+
+  // Quick live filter micro-interaction
+  const liveSearch = document.getElementById('liveSearchInput');
+  if (liveSearch) {
+    liveSearch.addEventListener('input', function(e) {
+      const term = e.target.value.toLowerCase().trim();
+      const rows = document.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        if (text.includes(term)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  }
+</script></main></div></body></html>

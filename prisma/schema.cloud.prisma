@@ -1,0 +1,296 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client-cloud"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RolUsuario {
+  ADMIN
+  CAJERO
+}
+
+enum TipoMovimiento {
+  ENTRADA
+  SALIDA
+  AJUSTE
+}
+
+enum EstadoVenta {
+  COMPLETADA
+  ANULADA
+}
+
+enum Moneda {
+  USD
+  VES
+  COP
+}
+
+enum MetodoPago {
+  EFECTIVO_USD
+  EFECTIVO_COP
+  PAGO_MOVIL_VES
+  TARJETA_VES
+  ZELLE_USD
+}
+
+enum EstadoTurnoCaja {
+  ABIERTO
+  CERRADO
+}
+
+enum TipoMovimientoCaja {
+  INGRESO
+  EGRESO
+}
+
+model Usuario {
+  id                    String                 @id @default(uuid())
+  nombre                String
+  email                 String                 @unique
+  passwordHash          String
+  rol                   RolUsuario             @default(CAJERO)
+  activo                Boolean                @default(true)
+  ventas                Venta[]
+  movimientosInventario MovimientoInventario[]
+  aperturasCaja         TurnoCaja[]            @relation("AperturasCaja")
+  cierresCaja           TurnoCaja[]            @relation("CierresCaja")
+  movimientosCaja       MovimientoCaja[]
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  @@map("usuarios")
+}
+
+model Categoria {
+  id        String     @id @default(uuid())
+  nombre    String     @unique
+  productos Producto[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("categorias")
+}
+
+model Proveedor {
+  id        String                @id @default(uuid())
+  nombre    String
+  rif       String                @unique
+  telefono  String?
+  correo    String?
+  direccion String?
+  activo    Boolean               @default(true)
+  productos ProductoProveedor[]
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+  @@map("proveedores")
+}
+
+model Producto {
+  id                    String                 @id @default(uuid())
+  codigo                String                 @unique
+  nombre                String
+  descripcion           String?
+  categoriaId           String
+  categoria             Categoria              @relation(fields: [categoriaId], references: [id])
+  precioCompra          Decimal                @db.Decimal(12, 2)
+  precioVenta           Decimal                @db.Decimal(12, 2)
+  stockActual           Int                    @default(0)
+  stockMinimo           Int                    @default(5)
+  unidadMedida          String                 @default("UND")
+  activo                Boolean                @default(true)
+  proveedores           ProductoProveedor[]
+  detallesVenta         DetalleVenta[]
+  movimientosInventario MovimientoInventario[]
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  @@map("productos")
+}
+
+model ProductoProveedor {
+  productoId  String
+  proveedorId String
+  producto    Producto  @relation(fields: [productoId], references: [id])
+  proveedor   Proveedor @relation(fields: [proveedorId], references: [id])
+
+  @@id([productoId, proveedorId])
+  @@map("producto_proveedores")
+}
+
+model Cliente {
+  id             String   @id @default(uuid())
+  nombre         String
+  identificacion String   @unique
+  telefono       String?
+  correo         String?
+  direccion      String?
+  ventas         Venta[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("clientes")
+}
+
+model Venta {
+  id              String         @id @default(uuid())
+  clienteId       String
+  cliente         Cliente        @relation(fields: [clienteId], references: [id])
+  usuarioId       String
+  usuario         Usuario        @relation(fields: [usuarioId], references: [id])
+  fecha           DateTime       @default(now())
+  subtotal        Decimal        @db.Decimal(12, 2)
+  impuesto        Decimal        @db.Decimal(12, 2)
+  total           Decimal        @db.Decimal(12, 2)
+  monedaFuncional Moneda         @default(USD)
+  totalUsd        Decimal        @default(0) @db.Decimal(12, 2)
+  estado          EstadoVenta    @default(COMPLETADA)
+  detalles        DetalleVenta[]
+  pagos           PagoVenta[]
+  turnoCajaId     String?
+  turnoCaja       TurnoCaja?     @relation(fields: [turnoCajaId], references: [id])
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@map("ventas")
+}
+
+model DetalleVenta {
+  id             String   @id @default(uuid())
+  ventaId        String
+  venta          Venta    @relation(fields: [ventaId], references: [id])
+  productoId     String
+  producto       Producto @relation(fields: [productoId], references: [id])
+  cantidad       Int
+  precioUnitario Decimal  @db.Decimal(12, 2)
+  subtotalLinea  Decimal  @db.Decimal(12, 2)
+
+  @@map("detalles_venta")
+}
+
+model PagoVenta {
+  id           String     @id @default(uuid())
+  ventaId      String
+  venta        Venta      @relation(fields: [ventaId], references: [id])
+  metodoPago   MetodoPago
+  moneda       Moneda
+  montoMoneda  Decimal    @db.Decimal(14, 2)
+  tasaAplicada Decimal    @db.Decimal(14, 4)
+  montoUsd     Decimal    @db.Decimal(12, 2)
+  referencia   String?
+  createdAt    DateTime   @default(now())
+
+  @@map("pagos_venta")
+}
+
+model TasaCambio {
+  id                 String   @id @default(uuid())
+  moneda             Moneda   @unique
+  tasaRespectoUsd    Decimal  @db.Decimal(14, 4)
+  fechaActualizacion DateTime @default(now()) @updatedAt
+
+  @@map("tasas_cambio")
+}
+
+model Configuracion {
+  id                 String   @id @default(uuid())
+  nombreFerreteria   String   @default("Mi Ferretería")
+  rif                String   @default("J-00000000-0")
+  direccion          String   @default("Guasdualito, Apure, Venezuela")
+  telefono           String   @default("0414-0000000")
+  ivaPorcentaje      Decimal  @default(16.0) @db.Decimal(5, 2)
+  stockMinimoAlerta  Int      @default(5)
+  monedaFuncional    Moneda   @default(USD)
+  tasaVes            Decimal  @default(60.0000) @db.Decimal(14, 4)
+  tasaCop            Decimal  @default(4100.0000) @db.Decimal(14, 4)
+  metodosHabilitados Json     @default("[\"EFECTIVO_USD\",\"EFECTIVO_COP\",\"PAGO_MOVIL_VES\",\"TARJETA_VES\",\"ZELLE_USD\"]")
+  updatedAt          DateTime @default(now()) @updatedAt
+
+  @@map("configuracion")
+}
+
+model MovimientoInventario {
+  id         String         @id @default(uuid())
+  productoId String
+  producto   Producto       @relation(fields: [productoId], references: [id])
+  tipo       TipoMovimiento
+  cantidad   Int
+  fecha      DateTime       @default(now())
+  motivo     String
+  usuarioId  String
+  usuario    Usuario        @relation(fields: [usuarioId], references: [id])
+
+  @@map("movimientos_inventario")
+}
+
+model TurnoCaja {
+  id                  String             @id @default(uuid())
+  cajaNumero          String             @default("Caja 1")
+  usuarioAperturaId   String
+  usuarioApertura     Usuario            @relation("AperturasCaja", fields: [usuarioAperturaId], references: [id])
+  usuarioCierreId     String?
+  usuarioCierre       Usuario?           @relation("CierresCaja", fields: [usuarioCierreId], references: [id])
+  estado              EstadoTurnoCaja    @default(ABIERTO)
+  fechaApertura       DateTime           @default(now())
+  fechaCierre         DateTime?
+
+  // Fondo inicial (base de cambio)
+  montoInicialUsd     Decimal            @default(0.0) @db.Decimal(12, 2)
+  montoInicialCop     Decimal            @default(0.0) @db.Decimal(14, 2)
+  montoInicialVes     Decimal            @default(0.0) @db.Decimal(14, 2)
+
+  // Conteo físico al cierre (conteo ciego)
+  conteoFisicoUsd     Decimal?           @db.Decimal(12, 2)
+  conteoFisicoCop     Decimal?           @db.Decimal(14, 2)
+  conteoFisicoVes     Decimal?           @db.Decimal(14, 2)
+
+  // Totales del sistema calculados al cierre
+  ventasTotalesUsd    Decimal?           @db.Decimal(12, 2)
+  ventasEfectivoUsd   Decimal?           @db.Decimal(12, 2)
+  ventasEfectivoCop   Decimal?           @db.Decimal(14, 2)
+  ventasPagoMovilVes  Decimal?           @db.Decimal(14, 2)
+  ventasTarjetaVes    Decimal?           @db.Decimal(14, 2)
+  ventasZelleUsd      Decimal?           @db.Decimal(12, 2)
+
+  // Movimientos manuales
+  ingresosManualesUsd Decimal?           @db.Decimal(12, 2)
+  egresosManualesUsd  Decimal?           @db.Decimal(12, 2)
+  ingresosManualesCop Decimal?           @db.Decimal(14, 2)
+  egresosManualesCop  Decimal?           @db.Decimal(14, 2)
+  ingresosManualesVes Decimal?           @db.Decimal(14, 2)
+  egresosManualesVes  Decimal?           @db.Decimal(14, 2)
+
+  // Diferencias calculadas (sobrante +, faltante -)
+  diferenciaUsd       Decimal?           @db.Decimal(12, 2)
+  diferenciaCop       Decimal?           @db.Decimal(14, 2)
+  diferenciaVes       Decimal?           @db.Decimal(14, 2)
+
+  observaciones       String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @default(now()) @updatedAt
+
+  movimientos         MovimientoCaja[]
+  ventas              Venta[]
+
+  @@map("turnos_caja")
+}
+
+model MovimientoCaja {
+  id          String             @id @default(uuid())
+  turnoCajaId String
+  turnoCaja   TurnoCaja          @relation(fields: [turnoCajaId], references: [id], onDelete: Cascade)
+  usuarioId   String
+  usuario     Usuario            @relation(fields: [usuarioId], references: [id])
+  tipo        TipoMovimientoCaja
+  monto       Decimal            @db.Decimal(14, 2)
+  moneda      Moneda             @default(USD)
+  motivo      String
+  fecha       DateTime           @default(now())
+
+  @@map("movimientos_caja")
+}
