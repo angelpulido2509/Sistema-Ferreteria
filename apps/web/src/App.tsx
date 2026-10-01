@@ -535,6 +535,8 @@ export default function App(): React.JSX.Element {
                   <span className="font-label-sm text-label-sm text-secondary leading-tight">
                     {user?.rol === RolUsuario.ADMIN ? 'Administrador' : 'Cajero'}
                   </span>
+                  {/* Solo desarrollo: inicia sesión con las cuentas demo del seed. Vite lo elimina en producción. */}
+                  {import.meta.env.DEV && (
                   <button
                     type="button"
                     onClick={async () => {
@@ -555,6 +557,7 @@ export default function App(): React.JSX.Element {
                   >
                     Cambiar rol
                   </button>
+                  )}
                 </div>
               </div>
               <button
