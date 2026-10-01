@@ -433,7 +433,8 @@ export const api = {
     }
   },
 
-  async updateConfiguracion(data: Partial<ConfiguracionDTO>): Promise<ConfiguracionDTO> {
+  /** confirmarTasas renueva la vigencia de las tasas VES/COP aunque no cambien (F1). */
+  async updateConfiguracion(data: Partial<ConfiguracionDTO> & { confirmarTasas?: boolean }): Promise<ConfiguracionDTO> {
     const res = await apiRequest<ConfiguracionDTO>('/configuracion', {
       method: 'PUT',
       body: JSON.stringify(data),

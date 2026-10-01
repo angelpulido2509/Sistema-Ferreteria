@@ -1,4 +1,4 @@
-import { configuracionRepository } from '../repositories/configuracion.repository.js';
+import { configuracionRepository, type ActualizarConfiguracionData } from '../repositories/configuracion.repository.js';
 import { ConfiguracionDTO, Moneda } from '@ferreteria/shared';
 
 export class ConfiguracionService {
@@ -7,7 +7,7 @@ export class ConfiguracionService {
     return this.mapToDTO(raw);
   }
 
-  public async update(data: Partial<ConfiguracionDTO>): Promise<ConfiguracionDTO> {
+  public async update(data: ActualizarConfiguracionData): Promise<ConfiguracionDTO> {
     if (data.tasaVes !== undefined && (typeof data.tasaVes !== 'number' || data.tasaVes <= 0)) {
       throw new Error('La tasa VES debe ser un número mayor a 0');
     }
@@ -19,6 +19,19 @@ export class ConfiguracionService {
     }
     if (data.stockMinimoAlerta !== undefined && (typeof data.stockMinimoAlerta !== 'number' || data.stockMinimoAlerta < 0)) {
       throw new Error('El stock mínimo de alerta debe ser un número mayor o igual a 0');
+    }
+
+    if (
+      data.tasaVigenciaHoras !== undefined &&
+      (!Number.isInteger(data.tasaVigenciaHoras) || data.tasaVigenciaHoras < 1 || data.tasaVigenciaHoras > 168)
+    ) {
+      throw new Error('La vigencia de la tasa debe ser un número entero de horas entre 1 y 168');
+    }
+    if (
+      data.descuentoMaxCajeroPct !== undefined &&
+      (typeof data.descuentoMaxCajeroPct !== 'number' || data.descuentoMaxCajeroPct < 0 || data.descuentoMaxCajeroPct > 100)
+    ) {
+      throw new Error('El tope de descuento del cajero debe estar entre 0 % y 100 %');
     }
 
     const updated = await configuracionRepository.update(data);
@@ -37,6 +50,9 @@ export class ConfiguracionService {
       monedaFuncional: raw.monedaFuncional as Moneda,
       tasaVes: Number(raw.tasaVes),
       tasaCop: Number(raw.tasaCop),
+      tasaActualizadaEn: raw.tasaActualizadaEn ?? null,
+      tasaVigenciaHoras: raw.tasaVigenciaHoras ?? 12,
+      descuentoMaxCajeroPct: raw.descuentoMaxCajeroPct !== undefined ? Number(raw.descuentoMaxCajeroPct) : 10,
       metodosHabilitados: Array.isArray(raw.metodosHabilitados)
         ? (raw.metodosHabilitados as string[])
         : JSON.parse(raw.metodosHabilitados || '[]'),

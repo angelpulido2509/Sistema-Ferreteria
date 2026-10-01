@@ -3,6 +3,9 @@ import { Moneda, MetodoPago, ConfiguracionDTO, OperacionSync } from '@ferreteria
 import { Prisma } from '@prisma/client-local';
 import { registrarSync } from '../lib/syncQueue.js';
 
+/** Datos editables de Configuracion. confirmarTasas renueva la vigencia de las tasas (F1). */
+export type ActualizarConfiguracionData = Partial<ConfiguracionDTO> & { confirmarTasas?: boolean };
+
 export class ConfiguracionRepository {
   public async get(): Promise<any> {
     let config = await prisma.configuracion.findFirst();
@@ -31,7 +34,7 @@ export class ConfiguracionRepository {
     return config;
   }
 
-  public async update(data: Partial<ConfiguracionDTO>): Promise<any> {
+  public async update(data: ActualizarConfiguracionData, ahora: Date = new Date()): Promise<any> {
     const current = await this.get();
 
     const updateData: any = {};
@@ -45,6 +48,16 @@ export class ConfiguracionRepository {
     if (data.tasaVes !== undefined) updateData.tasaVes = new Prisma.Decimal(data.tasaVes);
     if (data.tasaCop !== undefined) updateData.tasaCop = new Prisma.Decimal(data.tasaCop);
     if (data.metodosHabilitados !== undefined) updateData.metodosHabilitados = data.metodosHabilitados;
+    if (data.tasaVigenciaHoras !== undefined) updateData.tasaVigenciaHoras = data.tasaVigenciaHoras;
+    if (data.descuentoMaxCajeroPct !== undefined) updateData.descuentoMaxCajeroPct = new Prisma.Decimal(data.descuentoMaxCajeroPct);
+
+    // F1: la tasa queda confirmada si cambia su valor o si el administrador la confirma explícitamente.
+    const tasaCambio =
+      (data.tasaVes !== undefined && !new Prisma.Decimal(data.tasaVes).equals(current.tasaVes)) ||
+      (data.tasaCop !== undefined && !new Prisma.Decimal(data.tasaCop).equals(current.tasaCop));
+    if (data.confirmarTasas === true || tasaCambio) {
+      updateData.tasaActualizadaEn = ahora;
+    }
 
     const updated = await prisma.configuracion.update({
       where: { id: current.id },

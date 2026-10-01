@@ -11,6 +11,7 @@ import {
   type PagoVentaDTO 
 } from '@ferreteria/shared';
 import { api } from '../lib/api.js';
+import { calcularTotalesCarrito } from '../lib/totalesCarrito.js';
 import { ComprobanteModal } from './ComprobanteModal.js';
 import { useSyncStatus, syncManager } from '../lib/syncManager.js';
 import { offlineDb, type VentaOffline } from '../lib/offlineDb.js';
@@ -83,10 +84,8 @@ export const PosView: React.FC<PosViewProps> = ({
   const tasaVes = config?.tasaVes || 60.0;
   const tasaCop = config?.tasaCop || 4100.0;
 
-  // Cart calculations
-  const subtotal = cart.reduce((acc, item) => acc + item.cantidad * item.producto.precioVenta, 0);
-  const impuesto = subtotal * 0.16;
-  const total = subtotal + impuesto;
+  // Totales con el mismo cálculo del servidor (IVA de Configuración por línea, exentos)
+  const { subtotal, impuesto, total } = calcularTotalesCarrito(cart, config?.ivaPorcentaje ?? 16);
 
   // Helper para convertir línea de pago a USD
   const getMontoUsd = (linea: LineaPagoForm): number => {

@@ -13,6 +13,8 @@ export interface CreateProductoInput {
   stockActual?: number;
   stockMinimo?: number;
   unidadMedida?: string;
+  /** F10: producto exento de IVA */
+  exentoIva?: boolean;
 }
 
 export interface UpdateProductoInput {
@@ -26,6 +28,7 @@ export interface UpdateProductoInput {
   stockActual?: number;
   stockMinimo?: number;
   unidadMedida?: string;
+  exentoIva?: boolean;
   activo?: boolean;
 }
 
@@ -48,6 +51,7 @@ export class ProductoService {
       stockActual: p.stockActual,
       stockMinimo: p.stockMinimo,
       unidadMedida: p.unidadMedida,
+      exentoIva: p.exentoIva ?? false,
       activo: p.activo,
       categoria: p.categoria ? {
         id: p.categoria.id,

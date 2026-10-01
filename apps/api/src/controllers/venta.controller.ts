@@ -67,7 +67,7 @@ export class VentaController {
         return;
       }
 
-      const venta = await ventaService.crearVenta(req.body, req.user.id);
+      const venta = await ventaService.crearVenta(req.body, { id: req.user.id, rol: req.user.rol });
       res.status(201).json({
         success: true,
         data: venta,

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { RolUsuario, Moneda, MetodoPago, type UsuarioDTO, type ConfiguracionDTO, type SyncStatusDTO } from '@ferreteria/shared';
 import { api } from '../lib/api.js';
 import { BackupPanel } from './BackupPanel.js';
+import { TasasVigenciaAviso } from './TasasVigenciaAviso.js';
 
 interface ConfiguracionViewProps {
   currentUser: UsuarioDTO | null;
@@ -89,7 +90,7 @@ export const ConfiguracionView: React.FC<ConfiguracionViewProps> = ({ currentUse
 
   // Mutación para actualizar la configuración en PostgreSQL
   const configMutation = useMutation({
-    mutationFn: (data: Partial<ConfiguracionDTO>) => api.updateConfiguracion(data),
+    mutationFn: (data: Partial<ConfiguracionDTO> & { confirmarTasas?: boolean }) => api.updateConfiguracion(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['configuracion'] });
       setSaveSuccess(true);
@@ -159,7 +160,7 @@ export const ConfiguracionView: React.FC<ConfiguracionViewProps> = ({ currentUse
   const [userError, setUserError] = useState<string | null>(null);
   const [userSubmitting, setUserSubmitting] = useState(false);
 
-  const saveSettings = (newSettings: SystemSettings) => {
+  const saveSettings = (newSettings: SystemSettings, opciones: { confirmarTasas?: boolean } = {}) => {
     setSettings(newSettings);
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(newSettings));
     
@@ -175,6 +176,7 @@ export const ConfiguracionView: React.FC<ConfiguracionViewProps> = ({ currentUse
       tasaVes: newSettings.tasaBcv,
       tasaCop: newSettings.tasaCop,
       metodosHabilitados: newSettings.metodosHabilitados,
+      confirmarTasas: opciones.confirmarTasas,
     });
   };
 
@@ -515,10 +517,12 @@ export const ConfiguracionView: React.FC<ConfiguracionViewProps> = ({ currentUse
           <form
             onSubmit={e => {
               e.preventDefault();
-              saveSettings(settings);
+              // Guardar desde Finanzas = el administrador revisó y confirma las tasas vigentes (F1)
+              saveSettings(settings, { confirmarTasas: true });
             }}
             className="flex flex-col gap-space-lg"
           >
+            <TasasVigenciaAviso config={serverConfig} />
             <div className="grid grid-cols-1 md:grid-cols-4 gap-space-md">
               {/* Moneda Ancla / Funcional */}
               <div className="p-space-md rounded bg-surface-container-low border border-surface-container flex flex-col justify-between">

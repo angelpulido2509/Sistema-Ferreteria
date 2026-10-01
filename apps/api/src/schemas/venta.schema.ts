@@ -2,22 +2,31 @@ import { z } from 'zod';
 import { MetodoPago, Moneda } from '@ferreteria/shared';
 
 /**
- * Validación de forma y tipos de la venta. Las reglas de negocio (precio/IVA/tasa
- * decididos por el servidor, pagos obligatorios) se endurecen en la Fase 1.
+ * Validación de forma y tipos de la venta. Los montos los decide el servidor (F1):
+ * precioUnitario, porcentajeImpuesto y tasaAplicada se aceptan por compatibilidad pero se ignoran.
  */
 const itemVentaSchema = z.object({
   productoId: z.string().min(1).max(64),
   cantidad: z.number().positive().max(1_000_000),
+  descuentoPorcentaje: z.number().min(0).max(100).optional(),
   precioUnitario: z.number().nonnegative().nullish(),
 });
 
-const pagoVentaSchema = z.object({
-  metodoPago: z.enum(MetodoPago),
-  moneda: z.enum(Moneda),
-  montoMoneda: z.number().positive(),
-  tasaAplicada: z.number().nonnegative(),
-  referencia: z.string().trim().max(100).nullish(),
-});
+const pagoVentaSchema = z
+  .object({
+    metodoPago: z.enum(MetodoPago),
+    moneda: z.enum(Moneda),
+    /** Lo que entregó el cliente. */
+    montoRecibido: z.number().positive().optional(),
+    /** Alias anterior de montoRecibido (cola offline del POS). */
+    montoMoneda: z.number().positive().optional(),
+    tasaAplicada: z.number().nonnegative().optional(),
+    referencia: z.string().trim().max(100).nullish(),
+  })
+  .refine((p) => p.montoRecibido !== undefined || p.montoMoneda !== undefined, {
+    error: 'Indique el monto recibido',
+    path: ['montoRecibido'],
+  });
 
 export const crearVentaSchema = z.object({
   clienteId: z.string().min(1).max(64),

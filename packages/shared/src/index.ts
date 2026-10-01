@@ -34,6 +34,25 @@ export enum MetodoPago {
   PAGO_MOVIL_VES = 'PAGO_MOVIL_VES',
   TARJETA_VES = 'TARJETA_VES',
   ZELLE_USD = 'ZELLE_USD',
+  NEQUI_COP = 'NEQUI_COP',
+}
+
+/** Moneda que fija cada método de pago (validada por el servidor). */
+export const MONEDA_POR_METODO: Record<MetodoPago, Moneda> = {
+  [MetodoPago.EFECTIVO_USD]: Moneda.USD,
+  [MetodoPago.ZELLE_USD]: Moneda.USD,
+  [MetodoPago.EFECTIVO_COP]: Moneda.COP,
+  [MetodoPago.NEQUI_COP]: Moneda.COP,
+  [MetodoPago.PAGO_MOVIL_VES]: Moneda.VES,
+  [MetodoPago.TARJETA_VES]: Moneda.VES,
+};
+
+/** Métodos de efectivo: son los únicos que entran al cuadre físico y pueden generar vuelto. */
+export const METODOS_EFECTIVO: readonly MetodoPago[] = [MetodoPago.EFECTIVO_USD, MetodoPago.EFECTIVO_COP];
+
+export enum TipoDocumento {
+  FACTURA = 'FACTURA',
+  NOTA_ENTREGA = 'NOTA_ENTREGA',
 }
 
 // Enums de Control de Caja y Arqueo (Guasdualito)
@@ -102,6 +121,8 @@ export interface ProductoDTO {
   stockActual: number;
   stockMinimo: number;
   unidadMedida: string;
+  /** F10: el producto no lleva IVA */
+  exentoIva?: boolean;
   activo: boolean;
   categoria?: CategoriaDTO;
   createdAt: string | Date;
@@ -125,7 +146,12 @@ export interface DetalleVentaDTO {
   productoId: string;
   cantidad: number;
   precioUnitario: number;
+  descuentoPorcentaje?: number;
+  descuentoMonto?: number;
+  /** Neto de la línea antes de IVA */
   subtotalLinea: number;
+  porcentajeImpuesto?: number;
+  impuestoLinea?: number;
   producto?: ProductoDTO;
 }
 
@@ -134,6 +160,11 @@ export interface PagoVentaDTO {
   ventaId?: string;
   metodoPago: MetodoPago;
   moneda: Moneda;
+  /** Lo entregado por el cliente (F3) */
+  montoRecibido?: number;
+  /** Vuelto entregado en la moneda del pago (F3) */
+  vuelto?: number;
+  /** Neto aplicado a la venta */
   montoMoneda: number;
   tasaAplicada: number;
   montoUsd: number;
@@ -160,6 +191,12 @@ export interface ConfiguracionDTO {
   tasaVes: number;        // Tasa VES por 1 USD
   tasaCop: number;        // Tasa COP por 1 USD
   metodosHabilitados: string[]; // MetodoPago[] en JSON o array
+  /** Última confirmación de las tasas VES/COP (null = nunca) */
+  tasaActualizadaEn?: string | Date | null;
+  /** Horas de vigencia de la tasa antes de bloquear cobros en VES/COP */
+  tasaVigenciaHoras?: number;
+  /** Tope de descuento por línea para CAJERO (%) */
+  descuentoMaxCajeroPct?: number;
   updatedAt?: string | Date;
 }
 
@@ -173,6 +210,16 @@ export interface VentaDTO {
   total: number;
   monedaFuncional?: Moneda;
   totalUsd?: number;
+  /** Correlativo, p. ej. N001-000123 (F9) */
+  numero?: string | null;
+  descuentoTotal?: number;
+  tipoDocumento?: TipoDocumento;
+  esPrueba?: boolean;
+  vueltoMoneda?: Moneda | null;
+  turnoCajaId?: string | null;
+  motivoAnulacion?: string | null;
+  anuladaPorId?: string | null;
+  fechaAnulacion?: string | Date | null;
   estado: EstadoVenta;
   cliente?: ClienteDTO;
   usuario?: UsuarioDTO;

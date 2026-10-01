@@ -80,6 +80,7 @@ export class ProductoRepository {
     stockActual?: number;
     stockMinimo?: number;
     unidadMedida?: string;
+    exentoIva?: boolean;
   }) {
     const producto = await prisma.producto.create({
       data: {
@@ -93,6 +94,7 @@ export class ProductoRepository {
         stockActual: data.stockActual ?? 0,
         stockMinimo: data.stockMinimo ?? 5,
         unidadMedida: data.unidadMedida ? data.unidadMedida.trim().toUpperCase() : 'UND',
+        exentoIva: data.exentoIva ?? false,
       },
       include: {
         categoria: true,
@@ -116,6 +118,7 @@ export class ProductoRepository {
       stockActual?: number;
       stockMinimo?: number;
       unidadMedida?: string;
+      exentoIva?: boolean;
       activo?: boolean;
     }
   ) {
@@ -131,6 +134,7 @@ export class ProductoRepository {
     if (data.stockActual !== undefined) updateData.stockActual = data.stockActual;
     if (data.stockMinimo !== undefined) updateData.stockMinimo = data.stockMinimo;
     if (data.unidadMedida !== undefined) updateData.unidadMedida = data.unidadMedida.trim().toUpperCase();
+    if (data.exentoIva !== undefined) updateData.exentoIva = data.exentoIva;
     if (data.activo !== undefined) updateData.activo = data.activo;
 
     const producto = await prisma.producto.update({
