@@ -1,9 +1,21 @@
 import { Router, type Request, type Response } from 'express';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { syncService } from '../services/sync.service.js';
-import type { ApiResponse, SyncStatusDTO } from '@ferreteria/shared';
+import { RolUsuario, type ApiResponse, type SyncStatusDTO } from '@ferreteria/shared';
 import { getEnv } from '../config/env.js';
+import { authenticateToken, authorizeRoles } from '../middlewares/auth.middleware.js';
 
 const router: Router = Router();
+
+/** Comparación en tiempo constante (se comparan digests para no filtrar la longitud). */
+function apiKeyValida(recibida: unknown, esperada: string): boolean {
+  if (typeof recibida !== 'string' || recibida.length === 0) {
+    return false;
+  }
+  const a = createHash('sha256').update(recibida).digest();
+  const b = createHash('sha256').update(esperada).digest();
+  return timingSafeEqual(a, b);
+}
 
 /**
  * POST /api/sync/push
@@ -11,10 +23,7 @@ const router: Router = Router();
  * Protegido con x-sync-api-key para no depender de la sesión de ningún cajero.
  */
 router.post('/push', async (req: Request, res: Response<ApiResponse<any>>) => {
-  const apiKey = req.headers['x-sync-api-key'];
-  const expectedKey = getEnv().SYNC_API_KEY;
-
-  if (!apiKey || apiKey !== expectedKey) {
+  if (!apiKeyValida(req.headers['x-sync-api-key'], getEnv().SYNC_API_KEY)) {
     res.status(401).json({
       success: false,
       data: null,
@@ -41,13 +50,17 @@ router.post('/push', async (req: Request, res: Response<ApiResponse<any>>) => {
       error: null,
     });
   } catch (error) {
+    console.error('[SyncReceiver] Error aplicando lote:', error);
     res.status(500).json({
       success: false,
       data: null,
-      error: error instanceof Error ? error.message : 'Error al aplicar sincronización',
+      error: 'Error al aplicar sincronización',
     });
   }
 });
+
+// Panel de sincronización: solo ADMIN autenticado.
+router.use(['/status', '/retry'], authenticateToken, authorizeRoles(RolUsuario.ADMIN));
 
 /**
  * GET /api/sync/status
@@ -62,10 +75,11 @@ router.get('/status', async (_req: Request, res: Response<ApiResponse<SyncStatus
       error: null,
     });
   } catch (error) {
+    console.error('[Sync] Error al obtener estado:', error);
     res.status(500).json({
       success: false,
       data: null,
-      error: error instanceof Error ? error.message : 'Error al obtener estado de sincronización',
+      error: 'Error al obtener estado de sincronización',
     });
   }
 });
@@ -83,10 +97,11 @@ router.post('/retry', async (_req: Request, res: Response<ApiResponse<any>>) => 
       error: null,
     });
   } catch (error) {
+    console.error('[Sync] Error al forzar sincronización:', error);
     res.status(500).json({
       success: false,
       data: null,
-      error: error instanceof Error ? error.message : 'Error al forzar sincronización',
+      error: 'Error al forzar sincronización',
     });
   }
 });

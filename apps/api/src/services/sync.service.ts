@@ -3,6 +3,9 @@ import { EstadoSync, OperacionSync, type SyncStatusDTO, type SyncPushItemDTO } f
 import { Prisma } from '@prisma/client-local';
 import { getEnv } from '../config/env.js';
 
+/** Entidades que el receptor de la nube rechaza siempre (S5). */
+const ENTIDADES_NO_SINCRONIZABLES = new Set(['Usuario']);
+
 export class SyncService {
   private isSyncing = false;
   private syncTimer: NodeJS.Timeout | null = null;
@@ -162,10 +165,19 @@ export class SyncService {
   /**
    * Endpoint receptor en la nube (idempotente vía upsert)
    */
-  public async aplicarSyncPush(items: SyncPushItemDTO[]): Promise<{ aplicados: number }> {
+  public async aplicarSyncPush(items: SyncPushItemDTO[]): Promise<{ aplicados: number; ignorados: number }> {
     let aplicados = 0;
+    let ignorados = 0;
 
     for (const item of items) {
+      // S5: los usuarios (passwordHash, rol) nunca se aceptan por sync; la API key sola
+      // no basta para crear o elevar cuentas en la nube.
+      if (ENTIDADES_NO_SINCRONIZABLES.has(item.entidad)) {
+        console.warn(`[SyncReceiver] Ignorado ${item.operacion} de ${item.entidad} (${item.entidadId}): entidad no sincronizable`);
+        ignorados++;
+        continue;
+      }
+
       try {
         await this.aplicarItem(item);
         aplicados++;
@@ -175,7 +187,7 @@ export class SyncService {
       }
     }
 
-    return { aplicados };
+    return { aplicados, ignorados };
   }
 
   private async aplicarItem(item: SyncPushItemDTO): Promise<void> {
@@ -262,22 +274,6 @@ export class SyncService {
             create: { id: entidadId, ...data },
           });
         }
-        break;
-      }
-
-      case 'Usuario': {
-        const data = {
-          nombre: payload.nombre as string,
-          email: payload.email as string,
-          passwordHash: payload.passwordHash as string,
-          rol: payload.rol as any,
-          activo: payload.activo !== false,
-        };
-        await prisma.usuario.upsert({
-          where: { id: entidadId },
-          update: data,
-          create: { id: entidadId, ...data },
-        });
         break;
       }
 
