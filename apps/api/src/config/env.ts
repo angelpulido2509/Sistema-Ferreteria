@@ -86,6 +86,9 @@ const envSchema = z
     /** Cookie del refresh token con atributo Secure. Por defecto: sí en producción. */
     COOKIE_SECURE: z.enum(['true', 'false']).optional(),
     CORS_ORIGIN: z.string().optional(),
+    /** Carpeta de respaldos de SQLite (idealmente otro disco o USB). Por defecto: prisma/backups. */
+    BACKUP_DIR: z.string().optional(),
+    BACKUP_RETENTION_DAYS: z.coerce.number().int().min(1).max(3650).default(30),
     CLOUD_API_URL: z.string().optional(),
   })
   .refine((e) => e.JWT_SECRET !== e.JWT_REFRESH_SECRET, {

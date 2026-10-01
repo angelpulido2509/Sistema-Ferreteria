@@ -387,3 +387,12 @@ export interface ResumenArqueoDTO {
     ves: number;
   };
 }
+
+// Respaldos de la base de datos local (SQLite)
+export interface BackupDTO {
+  archivo: string;
+  tamanoBytes: number;
+  creadoEn: string | Date;
+  /** arranque | diario | cierre-turno | manual */
+  motivo: string;
+}

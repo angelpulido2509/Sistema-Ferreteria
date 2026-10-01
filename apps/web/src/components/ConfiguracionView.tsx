@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { RolUsuario, Moneda, MetodoPago, type UsuarioDTO, type ConfiguracionDTO, type SyncStatusDTO } from '@ferreteria/shared';
 import { api } from '../lib/api.js';
+import { BackupPanel } from './BackupPanel.js';
 
 interface ConfiguracionViewProps {
   currentUser: UsuarioDTO | null;
@@ -1149,6 +1150,8 @@ export const ConfiguracionView: React.FC<ConfiguracionViewProps> = ({ currentUse
           </form>
         </div>
       )}
+
+      {activeTab === 'operaciones' && <BackupPanel />}
 
       {/* PESTAÑA 5: ESTADO DE SINCRONIZACIÓN HÍBRIDA (OUTBOX A LA NUBE) */}
       {activeTab === 'sincronizacion' && (

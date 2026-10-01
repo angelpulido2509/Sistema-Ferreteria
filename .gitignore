@@ -35,3 +35,7 @@ test_stitch.js
 
 # Respaldos locales de la BD
 backups/
+
+# SQLite en modo WAL
+prisma/*.db-wal
+prisma/*.db-shm

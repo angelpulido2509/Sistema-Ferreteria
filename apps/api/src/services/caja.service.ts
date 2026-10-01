@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prisma.js';
+import { backupService } from './backup.service.js';
 import { Prisma } from '@prisma/client-local';
 import {
   EstadoTurnoCaja,
@@ -436,6 +437,9 @@ export class CajaService {
         observaciones: data.observaciones?.trim() || null,
       },
     });
+
+    // Respaldo al cerrar turno (D1): en segundo plano, nunca bloquea ni hace fallar el cierre.
+    void backupService.crearBackupSeguro('cierre-turno');
 
     // Retornar resumen completo actualizado
     return await this.calcularResumenTurno(data.turnoCajaId);

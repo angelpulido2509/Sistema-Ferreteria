@@ -3,6 +3,7 @@ import './config/dotenv.js';
 import { getEnv, EnvValidationError, type Env } from './config/env.js';
 import { createApp, parseCorsOrigins } from './app.js';
 import { syncService } from './services/sync.service.js';
+import { backupService } from './services/backup.service.js';
 
 function cargarConfiguracion(): Env {
   try {
@@ -23,4 +24,6 @@ app.listen(env.PORT, () => {
   console.log(`🚀 Servidor API de Ferretería corriendo en http://localhost:${env.PORT}`);
   console.log(`📡 Healthcheck disponible en http://localhost:${env.PORT}/api/health`);
   syncService.startBackgroundWorker();
+  // WAL + respaldo al arrancar + respaldo diario (D1)
+  void backupService.iniciar();
 });

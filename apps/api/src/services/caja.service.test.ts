@@ -3,6 +3,10 @@ import { CajaService } from './caja.service.js';
 import { prisma } from '../lib/prisma.js';
 import { EstadoTurnoCaja, TipoMovimientoCaja, Moneda, MetodoPago } from '@ferreteria/shared';
 
+vi.mock('./backup.service.js', () => ({
+  backupService: { crearBackupSeguro: vi.fn().mockResolvedValue(null) },
+}));
+
 vi.mock('../lib/prisma.js', () => ({
   prisma: {
     turnoCaja: {

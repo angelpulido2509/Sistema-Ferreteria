@@ -11,6 +11,7 @@ import usuarioRoutes from './usuario.routes.js';
 import configuracionRoutes from './configuracion.routes.js';
 import syncRoutes from './sync.routes.js';
 import cajaRoutes from './caja.routes.js';
+import backupRoutes from './backup.routes.js';
 
 const router: Router = Router();
 
@@ -26,5 +27,6 @@ router.use('/reportes', reportesRoutes);
 router.use('/usuarios', usuarioRoutes);
 router.use('/configuracion', configuracionRoutes);
 router.use('/sync', syncRoutes);
+router.use('/backup', backupRoutes);
 
 export default router;

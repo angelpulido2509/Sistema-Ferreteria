@@ -23,7 +23,8 @@ import {
   type MovimientoCajaDTO,
   type CrearMovimientoCajaDTO,
   type CerrarCajaDTO,
-  type ResumenArqueoDTO
+  type ResumenArqueoDTO,
+  type BackupDTO
 } from '@ferreteria/shared';
 
 const API_BASE = '/api';
@@ -444,6 +445,15 @@ export const api = {
   },
 
   // Sincronización Híbrida (Outbox a la Nube)
+  // Respaldos de la base de datos (solo ADMIN)
+  async getBackups(): Promise<BackupDTO[]> {
+    return await apiRequest<BackupDTO[]>('/backup');
+  },
+
+  async crearBackup(): Promise<BackupDTO> {
+    return await apiRequest<BackupDTO>('/backup/now', { method: 'POST' });
+  },
+
   async getSyncStatus(): Promise<SyncStatusDTO> {
     return await apiRequest<SyncStatusDTO>('/sync/status');
   },
