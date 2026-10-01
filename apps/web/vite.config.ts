@@ -33,9 +33,11 @@ export default defineConfig({
     }),
   ],
   server: {
-    host: true,
+    // Solo localhost por defecto. Para exponer en la LAN hay que declararlo
+    // explícitamente con VITE_DEV_HOST (ver docs/ACCESO-REMOTO.md).
+    host: process.env.VITE_DEV_HOST || 'localhost',
     port: 5173,
-    allowedHosts: true,
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://localhost:4000',

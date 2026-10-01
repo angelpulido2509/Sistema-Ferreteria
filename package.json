@@ -12,8 +12,7 @@
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "prisma:generate": "prisma generate --schema=prisma/schema.local.prisma && prisma generate --schema=prisma/schema.cloud.prisma",
-    "prisma:push:local": "prisma db push --schema=prisma/schema.local.prisma",
-    "tunnel": ".\\cloudflared.exe tunnel --url http://localhost:5173"
+    "prisma:push:local": "prisma db push --schema=prisma/schema.local.prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1"
